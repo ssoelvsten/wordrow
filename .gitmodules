@@ -1,4 +1,4 @@
 [submodule "game_gen/external/anatree"]
 	path = game_gen/external/anatree
 	url = ../../ssoelvsten/anatree
-	branch = header-only
+	branch = cpp/header-only
