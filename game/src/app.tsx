@@ -111,7 +111,7 @@ const App = () => {
         {inGame && language && mode &&
             <Session mode={mode} language={language} />
         }
-        <div className="TopButtons Left">
+        <div className="Top Left">
           <button className="Button" disabled={!inGame}
             onClick={() => {
               if (sound) { play({ id: soundKey }); }

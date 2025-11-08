@@ -6,24 +6,25 @@
     background-color: $light-background;
     color: $light-text-color;
 
-    /* Fixed Buttons */
-    .TopButtons {
+    /* Fixed Content */
+    .Top {
         $button-gap: 6px;
 
         position: fixed;
         top: $button-gap;
 
+        z-index: 999;
+
         .Button {
             border: none;
-            font-size: 19px;
 
+            font-size: 19px;
             @media screen and (max-width: $small-screen-width) {
                 font-size: 16px;
             }
 
             background-color: $light-background;
             color: $light-text-color;
-            z-index: 999;
 
             &:not(:disabled) {
                 cursor: pointer;
@@ -54,8 +55,10 @@
     background-color: $dark-background;
 
     /* Global buttons */
-    .TopButtons .Button {
-        background-color: $dark-background;
-        color: $dark-text-color;
+    .Top {
+        .Button {
+            background-color: $dark-background;
+            color: $dark-text-color;
+        }
     }
 }

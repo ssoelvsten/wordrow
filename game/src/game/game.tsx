@@ -6,7 +6,7 @@ import * as faSolid from '@fortawesome/free-solid-svg-icons'
 
 import { GameInstance } from './game-instance';
 import { Language } from '../language';
-import { Mode, ModeLogic, GetModeLogic } from '../mode';
+import { Mode, GameConfig, GetGameConfig, GetModeName, SessionConfig, GetSessionConfig } from '../mode';
 import { SoundContext, endKey, guessKey, randomHitKey, randomMissKey, soundMap, soundPath } from '../sound';
 
 import { InputButton, InputLetter } from './input';
@@ -20,7 +20,7 @@ import './game.scss';
 
 export interface GameReport {
     qualified: boolean;
-    score: number;
+    score: number | undefined;
 }
 
 export interface GameProps {
@@ -28,8 +28,8 @@ export interface GameProps {
     mode: Mode;
     language: Language;
     accScore: number;
-    round: number;
-    onRequestNextGame: (report: GameReport) => void;
+    round: number | undefined;
+    onRequestNextGame: ((report: GameReport) => void) | undefined;
 }
 
 type CharIdx = [string, number | null];
@@ -53,6 +53,8 @@ const deriveSelected = (chars: CharIdx[]) => {
 
 const charShuffle = (chars: CharIdx[]) => {
     let charsCopy = chars.map(c => c);
+
+    // Move all unselected characters (`null`) to the end.
     charsCopy.sort(
         ([_ca, ia], [_cb, ib]) => {
             if (ia === null && ib === null)
@@ -62,6 +64,8 @@ const charShuffle = (chars: CharIdx[]) => {
             else return 0;
         }
     );
+
+    // Shuffle only the null characters.
     const firstNonNull = charsCopy.findIndex(([_, i]) => i === null);
     shuffle(charsCopy, firstNonNull, charsCopy.length);
     return charsCopy;
@@ -73,16 +77,12 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
     const maxWordLength: number = anagrams[words - 1].length;
     //const averageWordLength = anagrams.reduce((acc, x) => acc + x.length, 0) / words;
 
-    // ------------------------------------------------------------------------
-    // GAME SCORING
-    const scoreWord = (w: string) => Math.round(Math.pow(w.length - 2, 2) * 100);
-
-    // ------------------------------------------------------------------------
-    // GAME TIME
+    // --------------------------------------------------------------------------------------------
+    // GAME MODE CONFIGURATION
     const numberOfChars: number = anagrams.reduce((acc, w) => acc + w.length, 0);
-    const timerSetting: ModeLogic = GetModeLogic(mode, numberOfChars);
+    const gameConfig: GameConfig = GetGameConfig(mode, numberOfChars);
 
-    // ------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
     // GAME STATE
 
     // Letters, their order, and their indices in the chosen word.
@@ -103,7 +103,7 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
     );
     // Time at which the game will end (if no additional time is obtained)
     const [endTime, setEndTime] = useState<number>(
-        () => new Date().getTime() + timerSetting.initialTime
+        () => new Date().getTime() + gameConfig.initialTime
     );
     // Whether the game has ended.
     const [gameEnd, setGameEnd] = useState<boolean>(
@@ -120,8 +120,15 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
         () => false
     );
 
-    const currScore: number =
-        (!guessed.includes(false) ? 2 : 1) * anagrams.filter((w, i) => guessed[i]).reduce((acc, w) => acc + scoreWord(w), 0);
+    const currScore: number = (() => {
+        const addScore = gameConfig.addScore;
+        if (!addScore) { return 0; }
+
+        const scoreMultiplier = !guessed.includes(false) ? 2 : 1;
+        const score = anagrams.filter((w, i) => guessed[i])
+                              .reduce((acc, w) => acc + addScore(w), 0);
+        return scoreMultiplier * score;
+    })();
 
     const qualified: boolean =
         !!guessed.find((v, idx) => v && anagrams[idx].length === maxWordLength);
@@ -130,11 +137,11 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
     const selected = deriveSelected(chars);
     const emptySelection: boolean = selected.length === 0;
 
-    // ------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
     // SOUND
     const [play] = useSound(soundPath, { sprite: soundMap, soundEnabled: useContext(SoundContext) });
 
-    // ------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
     // GAME LOGIC
     const actionShuffle = () => {
         play({ id: "button" });
@@ -201,7 +208,7 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
                     play({ id: guessKey(selected.length === maxWordLength && !qualified) });
 
                     setLatestGuessed(selected);
-                    setEndTime(endTime + timerSetting.addTime(selected.length));
+                    setEndTime(endTime + gameConfig.addTime(selected));
 
                     const remainingWords = guessed.reduce((acc, v) => acc + (!v ? 1 : 0), 0);
                     setGameEnd(remainingWords <= 1);
@@ -246,7 +253,7 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
     };
 
     const actionNextGame = () => {
-        if (!activatePressToContinue) { return; }
+        if (!activatePressToContinue || !onRequestNextGame) { return; }
 
         play({ id: "button" });
         onRequestNextGame({ qualified, score: currScore });
@@ -260,13 +267,15 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
         if (gameEnd) {
             play({ id: endKey(qualified) });
 
-            const gameEndDelay = 2000;
-            setTimeout(() => setActivatePressToContinue(true), gameEndDelay);
+            if (onRequestNextGame) {
+                const gameEndDelay = 2000;
+                setTimeout(() => setActivatePressToContinue(true), gameEndDelay);
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameEnd]);
 
-    // ------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
     // KEY LISTENER
     const onKey = (e: React.KeyboardEvent) => {
         if (gameEnd) {
@@ -282,9 +291,8 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
         }
     }
 
-    // ------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
     // ANAGRAMS LAYOUT
-
     const wordLengths: number[] = Array(maxWordLength - minWordLength + 1).fill(0).map((_, i) => i + minWordLength);
     let wordColumns: [string, number][][] = wordLengths.map((word_length, i) =>
         anagrams.map((w, i) => [w, i] as [string, number]).filter(([w, _]) => w.length === word_length)
@@ -294,7 +302,7 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
     //   https://www.pluralsight.com/guides/re-render-react-component-on-window-resize
     //   https://www.tutsmake.com/react-get-window-height-width/
 
-    // Retrieve the last elemen with class 'Letter' which is a single symbol for the guessed words.
+    // Retrieve the last element with class 'Letter' which is a single symbol for the guessed words.
     // If 'null' then this is the first draw and we will just use the default 100% zoom values.
     const LetterElement = document.getElementsByClassName("Letter").item(0);
     const letterHeight = (LetterElement ? LetterElement.clientHeight : 2 * 5 + 16) + 1;
@@ -333,20 +341,22 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
         actualColumns += 1;
     }
 
-    // ------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
     // TRANSLATIONS
 
-    let round_text: ReactElement = <></>;
-    switch (language) {
-        case Language.DK: round_text = <>Runde {round}</>; break;
-        case Language.DE: round_text = <>Runde {round}</>; break;
-        case Language.EN: round_text = <>Round {round}</>; break;
-        case Language.ES: round_text = <>Ronda {round}</>; break;
-        default:
-            throw new Error(`Unknown Language: ${language}`);
+    let round_text: ReactElement = <>{GetModeName(mode, language)}</>;
+    if (round) {
+        switch (language) {
+            case Language.DK: round_text = <>Runde {round}</>; break;
+            case Language.DE: round_text = <>Runde {round}</>; break;
+            case Language.EN: round_text = <>Round {round}</>; break;
+            case Language.ES: round_text = <>Ronda {round}</>; break;
+            default:
+                throw new Error(`Unknown Language: ${language}`);
+        }
     }
 
-    // ------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
     // VISUAL
 
     // Run logic after the first draw is finished.
@@ -365,14 +375,16 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
     return (
         <>
             <div className={`Game`} tabIndex={0} onKeyDown={onKey} ref={divRef}>
-                <ScoreBoard endTime={endTime}
-                    gameEnd={gameEnd}
-                    language={language}
-                    qualified={qualified}
-                    score={accScore + currScore}
-                    round={round}
-                    onTimeout={onTimeout}
-                />
+                { gameConfig.addScore && round &&
+                    <ScoreBoard endTime={endTime}
+                        gameEnd={gameEnd}
+                        language={language}
+                        qualified={qualified}
+                        score={accScore + currScore}
+                        round={round}
+                        onTimeout={onTimeout}
+                    />
+                }
 
                 {<div className={`Anagrams`}>
                     {wordColumns.map((c, i) => (
@@ -383,7 +395,7 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
                         })
                     ))}
                 </div>}
-                {!latestGuessed &&
+                {!latestGuessed && round &&
                     <Announcement content={round_text} />
                 }
 
@@ -413,7 +425,7 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
                             </div>
                         </>
                     }
-                    {gameEnd &&
+                    {gameEnd && onRequestNextGame &&
                         <div className={`Row`}>
                             <EndScreen language={language}
                                 qualified={qualified}
@@ -426,19 +438,21 @@ const Game = ({ instance: { anagrams }, mode, language, accScore, round, onReque
                 </div>
 
                 {/* Add top-right game-specific buttons (see styling in '../app.scss') */}
-                <div className={`TopButtons Right`}>
-                    <button className={`Button`}
-                        onClick={() => {
-                            if (gameEnd) {
-                                play({ id: "button" });
-                                onRequestNextGame({ qualified, score: currScore });
-                            } else {
-                                setGameEnd(true);
-                            }
-                        }}
-                    >
-                        <FontAwesomeIcon icon={gameEnd ? faSolid.faForwardStep : faSolid.faForward} />
-                    </button>
+                <div className={`Top Right`}>
+                    {onRequestNextGame &&
+                        <button className={`Button`}
+                            onClick={() => {
+                                if (gameEnd) {
+                                    play({ id: "button" });
+                                    onRequestNextGame({ qualified, score: currScore });
+                                } else {
+                                    setGameEnd(true);
+                                }
+                            }}
+                        >
+                            <FontAwesomeIcon icon={gameEnd ? faSolid.faForwardStep : faSolid.faForward} />
+                        </button>
+                    }
                 </div>
             </div>
         </>

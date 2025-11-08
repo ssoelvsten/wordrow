@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { Language } from '../language';
-import { Mode } from '../mode';
+import { SessionConfig, GetSessionConfig, Mode } from '../mode';
 import { random } from '../random';
 
 import { GameIndex, GameInstance } from './game-instance';
@@ -16,34 +16,36 @@ export interface SessionProps {
 }
 
 const Session = ({ mode, language }: SessionProps) => {
+  const sessionConfig: SessionConfig = GetSessionConfig(mode);
+
   const [accScore, setAccScore] = useState<number>(0);
-  const [round, setRound] = useState<number>(1);
+  const [round, setRound] = useState<number | undefined>(sessionConfig.canRepick ? 1 : undefined);
   const [gameInstance, setGameInstance] = useState<GameInstance | undefined>(undefined);
 
-  const fetchRandom = () => {
+  const fetchGame = () => {
     // Fetch from the index file for the desired language
     fetch(`dict/${language}/index.json`, JSONHeader)
       // Convert response as a GameIndex object
       .then((resp: Response) => resp.json())
       // Randomly choose an index
-      .then((data: GameIndex) => Math.round(random(0, data.instances - 1)))
+      .then((data: GameIndex) => sessionConfig.pick(data.instances))
       // Fetch specific game based on language and index
       .then((gameIdx: number) => fetch(`dict/${language}/${gameIdx}.json`, JSONHeader))
       // Convert response to GameInstance object
       .then((resp: Response) => resp.json())
       // Set gameInstance
       .then((data: GameInstance) => setGameInstance(data));
-  }
+  };
 
-  const fetchNextRandom = (previousGame: GameReport) => {
+  const fetchNextGame = (previousGame: GameReport) => {
     setGameInstance(undefined);
-    setRound(previousGame.qualified ? round + 1 : 1);
-    setAccScore(previousGame.qualified ? accScore + previousGame.score : 0);
-    fetchRandom();
-  }
+    setRound(previousGame.qualified ? (round as number) + 1 : 1);
+    setAccScore(previousGame.qualified ? accScore + (previousGame.score || 0) : 0);
+    fetchGame();
+  };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(fetchRandom, [/* Run once to get the first game */]);
+  useEffect(fetchGame, [/* Run once to get the first game */]);
 
   return (
     <>
@@ -54,7 +56,7 @@ const Session = ({ mode, language }: SessionProps) => {
             language={language}
             accScore={accScore}
             round={round}
-            onRequestNextGame={fetchNextRandom} />
+            onRequestNextGame={sessionConfig.canRepick ? fetchNextGame : undefined} />
         </div>
       }
     </>

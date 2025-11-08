@@ -14,8 +14,9 @@ const EndScreen = ({ language, qualified, score, showContinue, onClickContinue }
     // ------------------------------------------------------------------------
     // TRANSLATIONS
 
-    let success_text, failed_text: ReactElement;
-    let continue_text: ReactElement;
+    let success_text  = <></>;
+    let failed_text   = <></>;
+    let continue_text = <></>;
 
     switch (language) {
         case Language.DK:
@@ -49,7 +50,7 @@ const EndScreen = ({ language, qualified, score, showContinue, onClickContinue }
         <div className="EndScreen">
             {qualified ? success_text : failed_text}
 
-            <div className="Score">{Math.round(score).toLocaleString()}</div>
+            <div className="Score">{score.toLocaleString()}</div>
 
             <div className={"Continue " + (showContinue ? "show" : "hide")}
                 onClick={onClickContinue}>

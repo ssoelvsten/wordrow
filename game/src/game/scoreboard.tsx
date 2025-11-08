@@ -18,9 +18,8 @@ export interface ScoreBoardProps {
 const ScoreBoard = ({ endTime, gameEnd, language, qualified, round, score, onTimeout }: ScoreBoardProps) => {
     const isTimed: boolean = endTime !== Infinity && !isNaN(endTime);
 
-    // ------------------------------------------------------------------------
-    // Clock Ticking and Formatting
-
+    // --------------------------------------------------------------------------------------------
+    // CLOCK TICKING AND FORMATTING
     const [currTime, setCurrTime] = useState(() => new Date().getTime());
 
     const formatTimeleft = () => {
@@ -61,9 +60,16 @@ const ScoreBoard = ({ endTime, gameEnd, language, qualified, round, score, onTim
     const timeLeft = endTime - currTime;
     const timeAlarm: boolean = 0 < timeLeft && timeLeft < 10 * 1000;
 
-    // ------------------------------------------------------------------------
-    // VISUAL
+    // --------------------------------------------------------------------------------------------
+    // ROUND FORMATTING
+    const roundText = round?.toLocaleString(language);
 
+    // --------------------------------------------------------------------------------------------
+    // SCORE FORMATTING
+    const scoreText = Math.round(score).toLocaleString(language, { minimumIntegerDigits: 7 });
+
+    // --------------------------------------------------------------------------------------------
+    // VISUAL
     return (
         <div className="ScoreBoard">
             {isTimed &&
@@ -72,11 +78,11 @@ const ScoreBoard = ({ endTime, gameEnd, language, qualified, round, score, onTim
             <div className="RoundNumber">
                 {isTimed && <div className="Bar">|</div>}
                 <FontAwesomeIcon icon={qualified ? faSolid.faFlag : faRegular.faFlag} flip={"horizontal"} />
-                {round}
+                {roundText}
                 <FontAwesomeIcon icon={qualified ? faSolid.faFlag : faRegular.faFlag} />
                 <div className="Bar">|</div>
             </div>
-            <div className="Score">{Math.round(score).toLocaleString(language, { minimumIntegerDigits: 7 })}</div>
+            <div className="Score"> {scoreText} </div>
         </div>
     );
 }
