@@ -41,7 +41,7 @@ const App = () => {
       const ls_res = localStorage.getItem(LS_KEYS.DarkMode);
       if (ls_res) { return ls_res === "true"; }
 
-      // Ask browser, whether it wants to use dark mode
+      // Ask browser, whether it wants to use sound
       return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
   );
@@ -52,7 +52,7 @@ const App = () => {
       const ls_res = localStorage.getItem(LS_KEYS.Language);
       if (ls_res) { return ls_res as Language; }
 
-      // Otherwise, just leave it unchecked
+      // Otherwise, just leave it at English
       return Language.EN;
     }
   );
