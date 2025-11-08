@@ -6,7 +6,7 @@ import * as faSolid from '@fortawesome/free-solid-svg-icons'
 
 import { GameInstance } from './game-instance';
 import { Language } from '../language';
-import { Difficulty, DifficultyLogic, GetDifficultyLogic } from '../difficulty';
+import { Mode, ModeLogic, GetModeLogic } from '../mode';
 import { SoundContext, endKey, guessKey, randomHitKey, randomMissKey, soundMap, soundPath } from '../sound';
 
 import { InputButton, InputLetter } from './input';
@@ -25,7 +25,7 @@ export interface GameReport {
 
 export interface GameProps {
     instance: GameInstance;
-    difficulty: Difficulty;
+    mode: Mode;
     language: Language;
     accScore: number;
     round: number;
@@ -67,7 +67,7 @@ const charShuffle = (chars: CharIdx[]) => {
     return charsCopy;
 }
 
-const Game = ({ instance: { anagrams }, difficulty, language, accScore, round, onRequestNextGame }: GameProps) => {
+const Game = ({ instance: { anagrams }, mode, language, accScore, round, onRequestNextGame }: GameProps) => {
     const words: number = anagrams.length;
     const minWordLength: number = anagrams[0].length;
     const maxWordLength: number = anagrams[words - 1].length;
@@ -80,7 +80,7 @@ const Game = ({ instance: { anagrams }, difficulty, language, accScore, round, o
     // ------------------------------------------------------------------------
     // GAME TIME
     const numberOfChars: number = anagrams.reduce((acc, w) => acc + w.length, 0);
-    const timerSetting: DifficultyLogic = GetDifficultyLogic(difficulty, numberOfChars);
+    const timerSetting: ModeLogic = GetModeLogic(mode, numberOfChars);
 
     // ------------------------------------------------------------------------
     // GAME STATE

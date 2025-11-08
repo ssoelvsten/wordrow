@@ -1,26 +1,26 @@
 import React, { useEffect, useState } from 'react';
 
 import { Language } from '../language';
-import { Difficulty } from '../difficulty';
+import { Mode } from '../mode';
 import { random } from '../random';
 
 import { GameIndex, GameInstance } from './game-instance';
 import Game, { GameReport } from './game';
-import './game-session.scss';
+import './session.scss';
 
 const JSONHeader = { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } };
 
-export interface GameSessionProps {
-  difficulty: Difficulty;
+export interface SessionProps {
+  mode: Mode;
   language: Language;
 }
 
-const GameSession = ({ difficulty, language }: GameSessionProps) => {
+const Session = ({ mode, language }: SessionProps) => {
   const [accScore, setAccScore] = useState<number>(0);
   const [round, setRound] = useState<number>(1);
   const [gameInstance, setGameInstance] = useState<GameInstance | undefined>(undefined);
 
-  const getGame = () => {
+  const fetchRandom = () => {
     // Fetch from the index file for the desired language
     fetch(`dict/${language}/index.json`, JSONHeader)
       // Convert response as a GameIndex object
@@ -35,30 +35,30 @@ const GameSession = ({ difficulty, language }: GameSessionProps) => {
       .then((data: GameInstance) => setGameInstance(data));
   }
 
-  const getNextGame = (previousGame: GameReport) => {
+  const fetchNextRandom = (previousGame: GameReport) => {
     setGameInstance(undefined);
     setRound(previousGame.qualified ? round + 1 : 1);
     setAccScore(previousGame.qualified ? accScore + previousGame.score : 0);
-    getGame();
+    fetchRandom();
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(getGame, [/* Run once to get the first game */]);
+  useEffect(fetchRandom, [/* Run once to get the first game */]);
 
   return (
     <>
       {gameInstance &&
-        <div className="GameSession">
+        <div className="Session">
           <Game instance={gameInstance}
-            difficulty={difficulty}
+            mode={mode}
             language={language}
             accScore={accScore}
             round={round}
-            onRequestNextGame={getNextGame} />
+            onRequestNextGame={fetchNextRandom} />
         </div>
       }
     </>
   );
 }
 
-export default GameSession;
+export default Session;

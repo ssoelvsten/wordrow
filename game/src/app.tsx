@@ -6,16 +6,16 @@ import * as faRegular from '@fortawesome/free-regular-svg-icons'
 import * as faSolid from '@fortawesome/free-solid-svg-icons'
 
 import { Language } from './language';
-import { Difficulty } from './difficulty';
+import { Mode } from './mode';
 import { SoundContext, soundKey, soundMap, soundPath } from './sound';
-import GameSession from './game-screen/game-session';
+import Session from './game/session';
 import Menu from './menu/menu';
 
 import './app.scss';
 
 const LS_KEYS = {
   DarkMode: "DarkMode",
-  Difficulty: "Difficulty",
+  Mode: "Mode",
   HasPlayed: "HasPlayed",
   Language: "Language",
   Sound: "Sound",
@@ -57,14 +57,14 @@ const App = () => {
     }
   );
 
-  const [difficulty, setDifficulty] = useState<Difficulty>(
+  const [mode, setMode] = useState<Mode>(
     () => {
       // Consult local storage for state from previous page
-      const ls_res = localStorage.getItem(LS_KEYS.Difficulty);
-      if (ls_res) { return ls_res as Difficulty; }
+      const ls_res = localStorage.getItem(LS_KEYS.Mode);
+      if (ls_res) { return ls_res as Mode; }
 
       // Otherwise, just leave it unchecked
-      return Difficulty.UNLIMITED;
+      return Mode.UNLIMITED;
     }
   );
 
@@ -82,12 +82,12 @@ const App = () => {
     if (language !== undefined) {
       localStorage.setItem(LS_KEYS.Language, language);
     }
-    if (difficulty !== undefined) {
-      localStorage.setItem(LS_KEYS.Difficulty, difficulty);
+    if (mode !== undefined) {
+      localStorage.setItem(LS_KEYS.Mode, mode);
     }
   }
 
-  useEffect(updateLocalStorage, [darkMode, sound, language, difficulty]);
+  useEffect(updateLocalStorage, [darkMode, sound, language, mode]);
 
   useEffect(() => {
     if (inGame) { localStorage.setItem(LS_KEYS.HasPlayed, "true"); }
@@ -105,11 +105,11 @@ const App = () => {
       <SoundContext.Provider value={sound}>
         {!inGame &&
           <Menu language={language} setLanguage={setLanguage}
-            difficulty={difficulty} setDifficulty={setDifficulty}
+            mode={mode} setMode={setMode}
             startGame={() => setInGame(true)} />
         }
-        {inGame && language && difficulty &&
-            <GameSession difficulty={difficulty} language={language} />
+        {inGame && language && mode &&
+            <Session mode={mode} language={language} />
         }
         <div className="TopButtons Left">
           <button className="Button" disabled={!inGame}
