@@ -79,12 +79,8 @@ const App = () => {
   const updateLocalStorage = () => {
     localStorage.setItem(LS_KEYS.DarkMode, `${darkMode}`);
     localStorage.setItem(LS_KEYS.Sound, `${sound}`);
-    if (language !== undefined) {
-      localStorage.setItem(LS_KEYS.Language, language);
-    }
-    if (mode !== undefined) {
-      localStorage.setItem(LS_KEYS.Mode, mode);
-    }
+    localStorage.setItem(LS_KEYS.Language, language);
+    localStorage.setItem(LS_KEYS.Mode, mode);
   }
 
   useEffect(updateLocalStorage, [darkMode, sound, language, mode]);
