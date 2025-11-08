@@ -93,7 +93,7 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
     const [guessed, setGuessed] = useState<boolean[]>(
         () => {
             const cachedGuesses = GameCache.get(mode, language);
-            return Array(words).fill(false).map((_, i) => cachedGuesses.has(anagrams[i]));
+            return Array(words).fill(false).map((_, i) => cachedGuesses.indexOf(anagrams[i]) !== -1);
         }
     );
     // String of the latest correct guess. This is used to trigger animations.

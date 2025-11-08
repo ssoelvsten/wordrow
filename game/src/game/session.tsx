@@ -56,7 +56,8 @@ const Session = ({ mode, language }: SessionProps) => {
   useEffect(fetchGame, [/* Run once to get the first game */]);
 
   // Reset game cache
-  useEffect(() => { GameCache.flushOnNew(mode, language, gameInstance?.anagrams) }, [gameInstance]);
+  GameCache.setup(mode, language, gameInstance?.anagrams);
+  useEffect(() => { GameCache.setup(mode, language, gameInstance?.anagrams) }, [gameInstance]);
 
   return (
     <>
