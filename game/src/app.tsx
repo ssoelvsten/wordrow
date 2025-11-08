@@ -63,8 +63,8 @@ const App = () => {
       const ls_res = localStorage.getItem(LS_KEYS.Mode);
       if (ls_res) { return ls_res as Mode; }
 
-      // Otherwise, just leave it unchecked
-      return Mode.UNLIMITED;
+      // Otherwise, just leave it at Timed (original TextTwist mode)
+      return Mode.TIMED;
     }
   );
 
