@@ -4,6 +4,7 @@ import { Language } from '../language';
 import { SessionConfig, GetSessionConfig, Mode } from '../mode';
 import { random } from '../random';
 
+import * as GameCache from './game-cache';
 import Game, { GameReport } from './game';
 import './session.scss';
 
@@ -53,6 +54,9 @@ const Session = ({ mode, language }: SessionProps) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(fetchGame, [/* Run once to get the first game */]);
+
+  // Reset game cache
+  useEffect(() => { GameCache.flushOnNew(mode, language, gameInstance?.anagrams) }, [gameInstance]);
 
   return (
     <>

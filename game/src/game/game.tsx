@@ -4,10 +4,10 @@ import useSound from 'use-sound';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as faSolid from '@fortawesome/free-solid-svg-icons'
 
-import { GameInstance } from './game-instance';
 import { Language } from '../language';
 import { Mode, GameConfig, GetGameConfig, GetModeName, SessionConfig, GetSessionConfig } from '../mode';
 import { SoundContext, endKey, guessKey, randomHitKey, randomMissKey, soundMap, soundPath } from '../sound';
+import * as GameCache from './game-cache';
 
 import { InputButton, InputLetter } from './input';
 import Word from './word';
@@ -91,7 +91,10 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
     );
     // Boolean array of which words have been guessed
     const [guessed, setGuessed] = useState<boolean[]>(
-        () => Array(words).fill(false)
+        () => {
+            const cachedGuesses = GameCache.get(mode, language);
+            return Array(words).fill(false).map((_, i) => cachedGuesses.has(anagrams[i]));
+        }
     );
     // String of the latest correct guess. This is used to trigger animations.
     const [latestGuessed, setLatestGuessed] = useState<string | null>(
@@ -200,7 +203,7 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
                 const newGuessed: boolean[] = guessed.map((v: boolean, idx: number) => {
                     const match = anagrams[idx] === selected;
                     if (match) guessedANewWord = v === false;
-                    return v || anagrams[idx] === selected;
+                    return v || match;
                 });
 
                 setGuessed(newGuessed);
@@ -209,6 +212,7 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
 
                     setLatestGuessed(selected);
                     setEndTime(endTime + gameConfig.addTime(selected));
+                    GameCache.push(mode, language, selected);
 
                     const remainingWords = guessed.reduce((acc, v) => acc + (!v ? 1 : 0), 0);
                     setGameEnd(remainingWords <= 1);
