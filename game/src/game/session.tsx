@@ -4,9 +4,16 @@ import { Language } from '../language';
 import { SessionConfig, GetSessionConfig, Mode } from '../mode';
 import { random } from '../random';
 
-import { GameIndex, GameInstance } from './game-instance';
 import Game, { GameReport } from './game';
 import './session.scss';
+
+export interface GameIndex {
+    instances: number;
+}
+
+export interface GameInstance {
+    anagrams: string[];
+}
 
 const JSONHeader = { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } };
 
@@ -51,7 +58,7 @@ const Session = ({ mode, language }: SessionProps) => {
     <>
       {gameInstance &&
         <div className="Session">
-          <Game instance={gameInstance}
+          <Game anagrams={gameInstance.anagrams}
             mode={mode}
             language={language}
             accScore={accScore}

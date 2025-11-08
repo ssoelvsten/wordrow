@@ -24,7 +24,7 @@ export interface GameReport {
 }
 
 export interface GameProps {
-    instance: GameInstance;
+    anagrams: string[];
     mode: Mode;
     language: Language;
     accScore: number;
@@ -71,7 +71,7 @@ const charShuffle = (chars: CharIdx[]) => {
     return charsCopy;
 }
 
-const Game = ({ instance: { anagrams }, mode, language, accScore, round, onRequestNextGame }: GameProps) => {
+const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: GameProps) => {
     const words: number = anagrams.length;
     const minWordLength: number = anagrams[0].length;
     const maxWordLength: number = anagrams[words - 1].length;
