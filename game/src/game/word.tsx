@@ -5,7 +5,7 @@ import './word.scss';
 export interface WordProps {
     col: number;
     guessed: boolean;
-    language: Language | undefined;
+    language: Language;
     row: number;
     show: boolean;
     word: string;
@@ -29,11 +29,10 @@ const word_url = (language: Language, word: string) => {
 export const Word = ({ col, language, guessed, row, show, word }: WordProps) => {
     const getDefinition = () => {
         if (!guessed && !show) return;
-        if (!language) return;
         window.open(word_url(language, word), "_blank");
     }
     return (
-        <div className={"Word" + (guessed ? " Guessed" : "") + (show ? " Show" : "")}
+        <div className={`Word ${guessed ? "Guessed" : ""} ${show ? "Show" : ""}`}
             onClick={getDefinition}
             style={{ gridColumn: col, gridRow: row }}
         >

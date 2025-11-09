@@ -71,6 +71,8 @@ const charShuffle = (chars: CharIdx[]) => {
     return charsCopy;
 }
 
+type WordState = { isGuessed: boolean }
+
 const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: GameProps) => {
     const words: number = anagrams.length;
     const minWordLength: number = anagrams[0].length;
@@ -94,10 +96,14 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
         () => charShuffle(anagrams[words - 1].split('').map((c) => [c, null]))
     );
     // Boolean array of which words have been guessed
-    const [guessed, setGuessed] = useState<boolean[]>(
+    const [wordStates, setWordStates] = useState<WordState[]>(
         () => {
             const cachedGuesses = GameCache.get(mode, language);
-            return Array(words).fill(false).map((_, i) => cachedGuesses.indexOf(anagrams[i]) !== -1);
+            return Array(words).fill({ isGuessed: false, hints: [] })
+                               .map(({ _, hints }, i) =>
+                                        ({ isGuessed: cachedGuesses.indexOf(anagrams[i]) !== -1,
+                                           hints
+                                        }));
         }
     );
     // String of the latest correct guess. This is used to trigger animations.
@@ -113,8 +119,9 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
         () => new Date().getTime() + gameConfig.initialTime
     );
     // Whether the game has ended.
+    const guessedAll = wordStates.find(({isGuessed}) => !isGuessed) === undefined
     const [gameEnd, setGameEnd] = useState<boolean>(
-        () => guessed.indexOf(false) < 0
+        () => guessedAll
     );
 
     // --------------------------------------------------------------------------------------------
@@ -134,15 +141,15 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
         const addScore = gameConfig.addScore;
         if (!addScore) { return 0; }
 
-        const scoreMultiplier = !guessed.includes(false) ? 2 : 1;
-        const score = anagrams.filter((w, i) => guessed[i])
+        const scoreMultiplier = guessedAll ? 2 : 1;
+        const score = anagrams.filter((w, i) => wordStates[i])
                               .reduce((acc, w) => acc + addScore(w), 0);
         return scoreMultiplier * score;
     })();
 
     /** Whether the player has qualified for another round in this session (if any). */
     const qualified: boolean =
-        !!guessed.find((v, idx) => v && anagrams[idx].length === maxWordLength);
+        !!wordStates.find(({isGuessed}, idx) => isGuessed && anagrams[idx].length === maxWordLength);
 
     // Whether the 'Press to Continue' button should be shown/active. This is separate from `gameEnd`
     // to defer it by a small fraction of time.
@@ -232,13 +239,11 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
             // Collapse guess from a char[] to a string
             if (anagrams.includes(selected)) {
                 let guessedANewWord = false;
-                const newGuessed: boolean[] = guessed.map((v: boolean, idx: number) => {
-                    const match = anagrams[idx] === selected;
-                    if (match) guessedANewWord = v === false;
-                    return v || match;
-                });
+                const newGuessed: WordState[] = wordStates.map((vh, idx) =>
+                    anagrams[idx] === selected && vh.isGuessed === false ? { isGuessed: true } : vh
+                );
+                setWordStates(newGuessed);
 
-                setGuessed(newGuessed);
                 if (guessedANewWord) {
                     play({ id: guessKey(selected.length === maxWordLength && !qualified) });
 
@@ -246,8 +251,7 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
                     setEndTime(endTime + gameConfig.addTime(selected));
                     GameCache.push(mode, language, selected);
 
-                    const remainingWords = guessed.reduce((acc, v) => acc + (!v ? 1 : 0), 0);
-                    setGameEnd(remainingWords <= 1);
+                    setGameEnd(wordStates.find((vh) => !vh.isGuessed) === undefined);
                 }
             }
             setChars(chars.map(([c, i]) => [c, null]));
@@ -416,7 +420,9 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
                         c.map(([w, j], ci) => {
                             const row = singleColumn ? Math.floor(j % actualColumnSize) + 1 : ci + 1;
                             const col = singleColumn ? Math.floor(j / actualColumnSize) + 1 : i + 1;
-                            return <Word key={j} language={language} word={w} guessed={guessed[j]} show={gameEnd} row={row} col={col} />
+                            return <Word key={j} row={row} col={col}
+                                         language={language}
+                                         word={w} guessed={wordStates[j].isGuessed} show={gameEnd} />
                         })
                     ))}
                 </div>}
@@ -427,7 +433,7 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
                 <div className={`Bottom`}>
                     {!gameEnd &&
                         <>
-                            <div className={`Row ${guessed.includes(true) ? 'HasGood' : ''}`} key={latestGuessed}>
+                            <div className={`Row ${wordStates.find((vh) => vh.isGuessed) ? 'HasGood' : ''}`} key={latestGuessed}>
                                 {emptySelection && <InputButton icon={faSolid.faRotate} onClick={actionShuffle} />}
                                 {!emptySelection && <InputButton icon={faSolid.faXmark} onClick={actionClear} />}
                                 {selected.padEnd(maxWordLength, ' ').split('').map((c, idx) => (
