@@ -1,0 +1,32 @@
+@import '../common.scss';
+
+.WordGrid {
+    width: 100%;
+    overflow: auto;
+    flex: 1;
+
+    display: grid;
+    gap: 0 0;
+    grid-auto-columns: min-content;
+    grid-auto-rows: min-content;
+    justify-content: center;
+
+    /* Scroll Bar (Firefox) */
+    scrollbar-color: $light-text-color $light-input;
+    scrollbar-width: thin;
+
+    /* Scroll Bar (Others) */
+    &::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: $light-input;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: $light-input;
+        border-radius: 1px;
+        border: solid $light-text-color;
+    }
+}

@@ -63,7 +63,7 @@ const Session = ({ mode, language }: SessionProps) => {
     <>
       {gameInstance &&
         <div className="Session">
-          <Game anagrams={gameInstance.anagrams}
+          <Game words={gameInstance.anagrams}
             mode={mode}
             language={language}
             accScore={accScore}
