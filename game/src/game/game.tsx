@@ -83,6 +83,10 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
     const gameConfig: GameConfig = GetGameConfig(mode, numberOfChars);
 
     // --------------------------------------------------------------------------------------------
+    // SOUND
+    const [play] = useSound(soundPath, { sprite: soundMap, soundEnabled: useContext(SoundContext) });
+
+    // --------------------------------------------------------------------------------------------
     // GAME STATE
 
     // Letters, their order, and their indices in the chosen word.
@@ -112,17 +116,20 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
     const [gameEnd, setGameEnd] = useState<boolean>(
         () => guessed.indexOf(false) < 0
     );
-    // Whether the 'Press to Continue' button should be shown/active. This is
-    // separate from `gameEnd` to defer it by a small fraction of time.
-    const [activatePressToContinue, setActivatePressToContinue] = useState<boolean>(
-        () => false
-    );
-    // Whether the page has been drawn. This is used to trigger computing the
-    // layout of the columns.
-    const [isDrawn, setIsDrawn] = useState<boolean>(
-        () => false
-    );
 
+    // --------------------------------------------------------------------------------------------
+    // DERIVABLE(ISH) GAME STATE
+    //
+    // To improve performance, we might want to also turn these into a `useState` that are updated
+    // via `useEffect`.
+
+    /** Selected word and its true length (i.e. the last index that is non-null) */
+    const selected = deriveSelected(chars);
+
+    /** Whether no characters have been selected. */
+    const emptySelection: boolean = selected.length === 0;
+
+    /** The score currently obtained as part of this game. */
     const currScore: number = (() => {
         const addScore = gameConfig.addScore;
         if (!addScore) { return 0; }
@@ -133,42 +140,62 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
         return scoreMultiplier * score;
     })();
 
+    /** Whether the player has qualified for another round in this session (if any). */
     const qualified: boolean =
         !!guessed.find((v, idx) => v && anagrams[idx].length === maxWordLength);
 
-    // Derive selected word and its true length (i.e. the last index that is non-null)
-    const selected = deriveSelected(chars);
-    const emptySelection: boolean = selected.length === 0;
-
-    // --------------------------------------------------------------------------------------------
-    // SOUND
-    const [play] = useSound(soundPath, { sprite: soundMap, soundEnabled: useContext(SoundContext) });
+    // Whether the 'Press to Continue' button should be shown/active. This is separate from `gameEnd`
+    // to defer it by a small fraction of time.
+    const [activatePressToContinue, setActivatePressToContinue] = useState<boolean>(
+        () => false
+    );
+    useEffect(() => {
+        if (!gameEnd) { return; }
+        play({ id: endKey(qualified) });
+        setTimeout(() => setActivatePressToContinue(true), 2000 /* 2s */);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gameEnd]);
 
     // --------------------------------------------------------------------------------------------
     // GAME LOGIC
-    const actionShuffle = () => {
-        play({ id: "button" });
 
-        const cachedWord: string = deriveSelected(guessCache.map(((s, idx) => [chars[idx][0], s])));
-        const shuffledChars: CharIdx[] = charShuffle(chars);
+    /** Clicking on an unselected (?) character */
+    const actionClick = (idx: number) => {
+        // Ignore invalid indices
+        if (idx < 0 || maxWordLength <= idx) {
+            play({ id: randomMissKey() });
+            return;
+        }
 
-        var shuffledCache: (number | null)[] = Array(maxWordLength).fill(null);
+        // Stop early, if index is already chosen
+        if (chars[idx][1] !== null) {
+            return;
+        }
 
-        cachedWord.split('').forEach((cached_char, cached_idx) => {
-            // Find and update unused matching character in 'shuffledChars'
-            shuffledChars.findIndex(([choice_char, _], choice_idx) => {
-                if (cached_char === choice_char && shuffledCache[choice_idx] === null) {
-                    shuffledCache[choice_idx] = cached_idx;
-                    return true;
-                }
-                return false;
-            });
-        });
-
-        setChars(shuffledChars);
-        setGuessCache(shuffledCache);
+        // Update selection
+        play({ id: randomHitKey() });
+        setChars(chars.map(([c, i], c_idx) => {
+            return c_idx === idx ? [c, selected.length] : [c, i];
+        }));
     };
 
+    /** Typing an unselected (?) character */
+    const actionType = (char: string) => {
+        // Ignore non-char inputs
+        if (char.length !== 1) return;
+
+        // Allow the user to write upper case letters
+        char = char.toLocaleLowerCase();
+
+        // Find the left-most index of an unselected occurence of 'char'
+        const idx = chars.reduceRight(
+            (acc, [c, i], idx) => c === char && i === null ? idx : acc,
+            maxWordLength
+        );
+        actionClick(idx);
+    };
+
+    /** Removal of a given letter at a certain position */
     const actionDelete = (idx: number = selected.length - 1) => {
         if (idx < 0 || selected.length <= idx) return;
 
@@ -178,13 +205,18 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
                 : [c, i - 1]));
     };
 
+    /** Clearing the entire word selection */
     const actionClear = () => {
-        if (selected.length === 0) return;
+        if (selected.length === 0) { return };
 
         play({ id: "button" });
         setChars(chars.map(([c, _]) => ([c, null])));
     };
 
+    /** Submitting a selection. This either recreates the previous selection from the cache or it
+     *  submits the non-empty selection for a guess.
+     *
+     * TODO: Split action in two? */
     const actionSubmit = () => {
         // If nothing is selected, recreate the indices for the word in 'guessCache' if any
         if (emptySelection && guessCache) {
@@ -222,40 +254,31 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
         }
     };
 
-    const actionClick = (idx: number) => {
-        // Ignore invalid indices
-        if (idx < 0 || maxWordLength <= idx) {
-            play({ id: randomMissKey() });
-            return;
-        }
+    /** Shuffle button/key logic */
+    const actionShuffle = () => {
+        play({ id: "button" });
 
-        // Stop early, if index is already chosen
-        if (chars[idx][1] !== null) {
-            return;
-        }
+        const cachedWord: string = deriveSelected(guessCache.map(((s, idx) => [chars[idx][0], s])));
+        const shuffledChars: CharIdx[] = charShuffle(chars);
 
-        // Update selection
-        play({ id: randomHitKey() });
-        setChars(chars.map(([c, i], c_idx) => {
-            return c_idx === idx ? [c, selected.length] : [c, i];
-        }));
+        var shuffledCache: (number | null)[] = Array(maxWordLength).fill(null);
+
+        cachedWord.split('').forEach((cached_char, cached_idx) => {
+            // Find and update unused matching character in 'shuffledChars'
+            shuffledChars.findIndex(([choice_char, _], choice_idx) => {
+                if (cached_char === choice_char && shuffledCache[choice_idx] === null) {
+                    shuffledCache[choice_idx] = cached_idx;
+                    return true;
+                }
+                return false;
+            });
+        });
+
+        setChars(shuffledChars);
+        setGuessCache(shuffledCache);
     };
 
-    const actionType = (char: string) => {
-        // Ignore non-char inputs
-        if (char.length !== 1) return;
-
-        // Allow the user to write upper case letters
-        char = char.toLocaleLowerCase();
-
-        // Find the left-most index of an unselected occurence of 'char'
-        const idx = chars.reduceRight(
-            (acc, [c, i], idx) => c === char && i === null ? idx : acc,
-            maxWordLength
-        );
-        actionClick(idx);
-    };
-
+    /** Request to start the next game in the session */
     const actionNextGame = () => {
         if (!activatePressToContinue || !onRequestNextGame) { return; }
 
@@ -263,24 +286,15 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
         onRequestNextGame({ qualified, score: currScore });
     };
 
+    /** Callback for the timer running out. */
     const onTimeout = () => {
         setGameEnd(true);
     };
 
-    useEffect(() => {
-        if (gameEnd) {
-            play({ id: endKey(qualified) });
-
-            if (onRequestNextGame) {
-                const gameEndDelay = 2000;
-                setTimeout(() => setActivatePressToContinue(true), gameEndDelay);
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [gameEnd]);
-
     // --------------------------------------------------------------------------------------------
     // KEY LISTENER
+
+    /** Key listener for all key presses in the game. */
     const onKey = (e: React.KeyboardEvent) => {
         if (gameEnd) {
             if (e.key === "Enter") { actionNextGame(); }
@@ -297,6 +311,12 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
 
     // --------------------------------------------------------------------------------------------
     // ANAGRAMS LAYOUT
+
+    // Whether the page has been drawn. This is used to trigger computing the layout of the columns.
+    const [isDrawn, setIsDrawn] = useState<boolean>(
+        () => false
+    );
+
     const wordLengths: number[] = Array(maxWordLength - minWordLength + 1).fill(0).map((_, i) => i + minWordLength);
     let wordColumns: [string, number][][] = wordLengths.map((word_length, i) =>
         anagrams.map((w, i) => [w, i] as [string, number]).filter(([w, _]) => w.length === word_length)
@@ -348,7 +368,7 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
     // --------------------------------------------------------------------------------------------
     // TRANSLATIONS
 
-    let round_text: ReactElement = <>{GetModeName(mode, language)}</>;
+    let round_text: ReactElement = <></>;
     if (round) {
         switch (language) {
             case Language.DK: round_text = <>Runde {round}</>; break;

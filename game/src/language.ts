@@ -12,8 +12,8 @@ export const languages: Language[] = [
     Language.DK,
 ];
 
-export const languageName = (l : Language) => {
-    switch (l) {
+export const languageName = (lang: Language) => {
+    switch (lang) {
     case Language.DK: return "Dansk";
     case Language.DE: return "Deutsch";
     case Language.EN: return "English";
