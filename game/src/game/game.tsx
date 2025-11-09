@@ -12,7 +12,7 @@ import * as GameCache from './game-cache';
 import Word from './word';
 import ScoreBoard from './scoreboard';
 import EndScreen from './end-screen';
-import Announcement from './announcement';
+import RoundBanner from './round-banner';
 
 import './game.scss';
 import Input from './input';
@@ -210,21 +210,6 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
     }
 
     // --------------------------------------------------------------------------------------------
-    // TRANSLATIONS
-
-    let round_text: ReactElement = <></>;
-    if (round) {
-        switch (language) {
-            case Language.DK: round_text = <>Runde {round}</>; break;
-            case Language.DE: round_text = <>Runde {round}</>; break;
-            case Language.EN: round_text = <>Round {round}</>; break;
-            case Language.ES: round_text = <>Ronda {round}</>; break;
-            default:
-                throw new Error(`Unknown Language: ${language}`);
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
     // VISUAL
 
     // Reference for Input component. This allows us to refocus on it.
@@ -258,8 +243,8 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
                         })
                     ))}
                 </div>}
-                {!guessedSome && round &&
-                    <Announcement content={round_text} />
+                { round &&
+                    <RoundBanner language={language} round={round} />
                 }
 
                 <div className={`Bottom`}>

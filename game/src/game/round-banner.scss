@@ -1,7 +1,7 @@
 @import '../common.scss';
 @import './word.scss';
 
-.Announcement {
+.RoundBanner {
     $height-hidden: 0;
 
     $height-full_large: 130px;
@@ -92,7 +92,7 @@
     animation-duration: 2s;
 }
 
-.DarkMode .Announcement {
+.DarkMode .RoundBanner {
     background-color: $dark-background;
 
     .Content {
