@@ -1,0 +1,54 @@
+@import '../common.scss';
+
+/* Extends the common `.Input .Row *` base from 'input.scss'. */
+.Input .Row .Letter {
+    background-color: $light-input;
+}
+
+.Input .Row.Success .Letter {
+    @keyframes InputSuccessLight {
+
+        /* flash animation when guessed */
+        0% {
+            border-color: $light-background;
+        }
+
+        50% {
+            border-color: $light-good;
+        }
+
+        100% {
+            border-color: $light-background;
+        }
+    }
+
+    animation-name: InputSuccessLight;
+    animation-delay: 0.02s;
+    animation-duration: 0.2s;
+}
+
+.DarkMode .Input .Letter {
+    background-color: $dark-input;
+}
+
+.DarkMode .Input .Row.Success .Letter {
+    @keyframes InputSuccessDark {
+
+        /* flash animation when guessed */
+        0% {
+            border-color: $dark-background;
+        }
+
+        50% {
+            border-color: $dark-good;
+        }
+
+        100% {
+            border-color: $dark-background;
+        }
+    }
+
+    animation-name: InputSuccessDark;
+    animation-delay: 0.02s;
+    animation-duration: 0.2s;
+}

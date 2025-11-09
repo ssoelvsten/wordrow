@@ -8,112 +8,64 @@ $input-small-factor: 0.5;
 $input-tiny-factor: 0.35;
 
 .Input {
-    flex: 0;
+    outline: none;
 
-    color: $light-text-color;
-
-    @include borderedCharBox($input-font-size, $input-gap);
-
-    @media screen and (max-width: $medium-screen-width) {
-        @include borderedCharBox($input-medium-factor*$input-font-size,
-            $input-medium-factor*$input-gap);
+    .Row {
+        flex: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: center;
     }
 
-    @media screen and (max-width: $small-screen-width) {
-        @include borderedCharBox($input-small-factor*$input-font-size,
-            $input-small-factor*$input-gap);
-    }
+    .Row > * {
+        flex: 0;
 
-    @media screen and (max-width: $tiny-screen-width) {
-        @include borderedCharBox($input-tiny-factor*$input-font-size,
-            $input-tiny-factor*$input-gap);
-    }
+        color: $light-text-color;
 
-    /* Overwrite values in 'borderedCharBox' for vertical gap */
-    margin-bottom: calc($input-gap / 2);
-    margin-top: calc($input-gap / 2);
+        @include borderedCharBox($input-font-size, $input-gap);
 
-    @media screen and (max-width: $medium-screen-width) {
-        margin-bottom: calc($input-medium-factor*$input-gap / 2);
-        margin-top: calc($input-medium-factor*$input-gap / 2);
-    }
+        @media screen and (max-width: $medium-screen-width) {
+            @include borderedCharBox($input-medium-factor*$input-font-size,
+                $input-medium-factor*$input-gap);
+        }
 
-    /* Overwrite values in 'borderedCharBox' for blink on successful guess. */
-    border-width: 3px;
-    border-color: $light-background;
+        @media screen and (max-width: $small-screen-width) {
+            @include borderedCharBox($input-small-factor*$input-font-size,
+                $input-small-factor*$input-gap);
+        }
 
-    /* Input Specific Styling */
-    &.Letter {
-        background-color: $light-input;
-    }
+        @media screen and (max-width: $tiny-screen-width) {
+            @include borderedCharBox($input-tiny-factor*$input-font-size,
+                $input-tiny-factor*$input-gap);
+        }
 
-    &.Button {
-        background-color: $light-background;
-    }
+        /* Overwrite values in 'borderedCharBox' for vertical gap */
+        margin-bottom: calc($input-gap / 2);
+        margin-top: calc($input-gap / 2);
 
-    /* Mouse Interaction */
-    &:not(.Disabled) {
-        cursor: pointer;
-    }
+        @media screen and (max-width: $medium-screen-width) {
+            margin-bottom: calc($input-medium-factor*$input-gap / 2);
+            margin-top: calc($input-medium-factor*$input-gap / 2);
+        }
 
-    &:not(:hover) {
-        opacity: 80%;
+        /* Overwrite values in 'borderedCharBox' for blink on successful guess. */
+        border-width: 3px;
+        border-color: $light-background;
+
+        /* Mouse Interaction */
+        &:not(.Disabled) {
+            cursor: pointer;
+        }
+
+        &:not(:hover) {
+            opacity: 80%;
+        }
     }
 }
 
-.HasGood .Input.Letter {
-    @keyframes InputSuccessLight {
-
-        /* flash animation when guessed */
-        0% {
-            border-color: $light-background;
-        }
-
-        50% {
-            border-color: $light-good;
-        }
-
-        100% {
-            border-color: $light-background;
-        }
-    }
-
-    animation-name: InputSuccessLight;
-    animation-delay: 0.02s;
-    animation-duration: 0.2s;
-}
-
-.DarkMode .Input {
+.DarkMode .Input .Row * {
     color: $dark-text-color;
     border-color: $dark-background;
-
-    &.Letter {
-        background-color: $dark-input;
-    }
-
-    &.Button {
-        background-color: $dark-background;
-    }
-}
-
-.DarkMode .HasGood .Input.Letter {
-    @keyframes InputSuccessDark {
-
-        /* flash animation when guessed */
-        0% {
-            border-color: $dark-background;
-        }
-
-        50% {
-            border-color: $dark-good;
-        }
-
-        100% {
-            border-color: $dark-background;
-        }
-    }
-
-    animation-name: InputSuccessDark;
-    animation-delay: 0.02s;
-    animation-duration: 0.2s;
 }

@@ -105,6 +105,7 @@ const Menu = ({ mode, setMode, language, setLanguage, startGame }: MenuProps) =>
   // ------------------------------------------------------------------------
   // VISUAL
 
+  // Focus on the component (for onKey listener) after the initial draw.
   // https://stackabuse.com/how-to-set-focus-on-element-after-rendering-with-react/
   const divRef = useRef<any>(null);
   useEffect(() => { divRef.current.focus(); }, []);
