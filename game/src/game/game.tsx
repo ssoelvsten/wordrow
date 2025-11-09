@@ -279,8 +279,9 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
     };
 
     /** Request to start the next game in the session */
-    const actionNextGame = () => {
-        if (!activatePressToContinue || !onRequestNextGame) { return; }
+    const actionNextGame = (ignorePressToContinue: boolean = false) => {
+        if (!onRequestNextGame) { return; }
+        if (!ignorePressToContinue && !activatePressToContinue) { return; }
 
         play({ id: "button" });
         onRequestNextGame({ qualified, score: currScore });
@@ -463,18 +464,14 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
 
                 {/* Add top-right game-specific buttons (see styling in '../app.scss') */}
                 <div className={`Top Right`}>
-                    {onRequestNextGame &&
-                        <button className={`Button`}
-                            onClick={() => {
-                                if (gameEnd) {
-                                    play({ id: "button" });
-                                    onRequestNextGame({ qualified, score: currScore });
-                                } else {
-                                    setGameEnd(true);
-                                }
-                            }}
-                        >
-                            <FontAwesomeIcon icon={gameEnd ? faSolid.faForwardStep : faSolid.faForward} />
+                    {onRequestNextGame && !gameEnd &&
+                        <button className={`Button`} onClick={() => setGameEnd(true)}>
+                            <FontAwesomeIcon icon={faSolid.faForward} />
+                        </button>
+                    }
+                    {onRequestNextGame && gameEnd &&
+                        <button className={`Button`} onClick={() => actionNextGame(true)}>
+                            <FontAwesomeIcon icon={faSolid.faForwardStep} />
                         </button>
                     }
                 </div>
