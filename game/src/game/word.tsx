@@ -9,6 +9,7 @@ export interface WordProps {
     row: number;
     show: boolean;
     word: string;
+    hints: string[];
 }
 
 const word_url = (language: Language, word: string) => {
@@ -26,24 +27,33 @@ const word_url = (language: Language, word: string) => {
     }
 }
 
-export const Word = ({ col, language, guessed, row, show, word }: WordProps) => {
+export const Word = ({ col, language, guessed, row, show, word, hints }: WordProps) => {
     const getDefinition = () => {
         if (!guessed && !show) return;
         window.open(word_url(language, word), "_blank");
     }
+
+    const isHint: boolean[] = Array(word.length).fill(false);
+    for (let c of hints) {
+        if (word.indexOf(c) < 0) { continue; }
+        isHint[Math.max(0, word.indexOf(c, 1))] = true;
+    }
+
     return (
         <div className={`Word ${guessed ? "Guessed" : ""} ${show ? "Show" : ""}`}
             onClick={getDefinition}
             style={{ gridColumn: col, gridRow: row }}
         >
             {word.split('')
-                .map(c => guessed || show ? c : "")
-                .map((c, i) => <div className="Letter"
-                    key={i}
-                    style={{ animationDelay: (i * 0.03 + 0.05) + "s" }}
-                >
-                    {c}
-                </div>)}
+                .map((c, i) => guessed || show || isHint[i] ? c : "")
+                .map((c, i) =>
+                    <div className={`Letter ${isHint[i] ? "Hint" : ""}`}
+                         key={i}
+                         style={{ animationDelay: (i * 0.03 + 0.05) + "s" }}
+                    >
+                        {c}
+                    </div>)
+            }
         </div>
     )
 }

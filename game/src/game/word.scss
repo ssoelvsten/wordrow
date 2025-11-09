@@ -46,6 +46,10 @@
         }
 
         color: $light-text-color;
+
+        &.Hint {
+            background-color: $light-hint;
+        }
     }
 
     &.Guessed .Letter {
@@ -65,12 +69,20 @@
 
         animation-name: WordRevealLight;
         animation-duration: 0.1s;
+
+        &.Hint {
+            background-color: $light-hint;
+        }
     }
 }
 
 .DarkMode .Word {
     .Letter {
         color: $dark-text-color;
+
+        &.Hint {
+            background-color: $dark-hint;
+        }
     }
 
     &.Guessed .Letter {
@@ -90,5 +102,9 @@
 
         animation-name: WordRevealDark;
         animation-duration: 0.2s;
+
+        &.Hint {
+            background-color: $dark-hint;
+        }
     }
 }

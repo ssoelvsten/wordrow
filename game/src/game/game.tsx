@@ -4,7 +4,7 @@ import useSound from 'use-sound';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as faSolid from '@fortawesome/free-solid-svg-icons';
 
-import { Language } from '../language';
+import { frequency, Language } from '../language';
 import { Mode, GameConfig, GetGameConfig  } from '../mode';
 import { SoundContext, endKey, guessKey, soundMap, soundPath } from '../sound';
 import * as GameCache from './game-cache';
@@ -15,7 +15,7 @@ import RoundBanner from './round-banner';
 
 import './game.scss';
 import Input from './input';
-import WordGrid from './word-grid';
+import WordGrid, { WordState } from './word-grid';
 
 export interface GameReport {
     qualified: boolean;
@@ -30,7 +30,19 @@ export interface GameProps {
     round: number | undefined;
     onRequestNextGame: ((report: GameReport) => void) | undefined;
 }
-type WordState = { isGuessed: boolean }
+
+const deriveHint = (lang: Language, word: string, hintNumber: number) => {
+    const hintOrder = word.split('').map(c => [c, frequency(lang, c)] as [string, number])
+                          .sort((a,b) => b[1] - a[1])
+                          .filter((x, i, xs) => !i || x[0] !== xs[i - 1][0])
+                          .map(cf => cf[0]);
+
+    return hintOrder[hintNumber];
+}
+
+const deriveHints = (lang: Language, word: string, hints: number) => {
+    return word.split('').map((_, i) => deriveHint(lang, word, i)).slice(0, hints);
+}
 
 const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: GameProps) => {
     const maxWord = words[words.length - 1];
@@ -50,15 +62,36 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
     // To improve performance, we might want to also turn the derived state below into a `useState`
     // that are updated via `useEffect`.
 
+    // Number of hints given.
+    const [hintCount, setHintCount] = useState<number>(
+        () => GameCache.get(mode, language).hints
+    );
+    useEffect(() => {
+        if (!hintCount) { return; }
+        GameCache.push(mode, language, hintCount);
+    }, [mode, language, hintCount]);
+
     // Array with the state of each word.
     const [wordStates, setWordStates] = useState<WordState[]>(
         () => {
-            const cachedGuesses = GameCache.get(mode, language);
-            return Array(words.length).fill({ isGuessed: false, hints: [] })
-                               .map(({ _, hints }, i) =>
-                                        ({ isGuessed: cachedGuesses.indexOf(words[i]) !== -1,
-                                           hints
-                                        }));
+            const hints = deriveHints(language, maxWord, hintCount);
+            const cachedGuesses = GameCache.get(mode, language).guessed;
+            return Array(words.length)
+                    .fill(undefined)
+                    .map((_, i) => ({
+                        isGuessed: false,
+                        hints: hints.filter(c => words[i].includes(c))
+                    }))
+                    .map((vh, i) => {
+                            const wordState = cachedGuesses.find(ws => ws.word === words[i]);
+                            if (wordState) {
+                                return ({
+                                    isGuessed: true,
+                                    hints: deriveHints(language, wordState.word, wordState.hints)
+                                });
+                            }
+                            return vh
+                    });
         }
     );
 
@@ -75,14 +108,20 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
         () => guessedAll
     );
 
+    /** Whether it is possible to get more hints */
+    const enableHints = hintCount < gameConfig.maxHints;
+
     /** The score currently obtained as part of this game. */
     const currScore: number = (() => {
         const addScore = gameConfig.addScore;
-        if (!addScore) { return 0; }
+        const multScore = gameConfig.multScore;
+        if (!addScore || !multScore) { return 0; }
 
-        const scoreMultiplier = guessedAll ? 2 : 1;
-        const score = words.filter((w, i) => wordStates[i])
-                              .reduce((acc, w) => acc + addScore(w), 0);
+        const scoreMultiplier = guessedAll ? multScore : 1;
+        const score = words.reduce((acc, w, i) => {
+            const wordState = wordStates[i];
+            return acc + (wordState.isGuessed ? addScore(w, wordState.hints.length) : 0);
+        }, 0);
         return scoreMultiplier * score;
     })();
 
@@ -105,6 +144,23 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
     // --------------------------------------------------------------------------------------------
     // GAME LOGIC
 
+    /** Request a hint */
+    const actionHint = () => {
+        if (!enableHints) { return; }
+
+        play({ id: "submit" });
+        setHintCount(hintCount + 1);
+
+        const newHint: string = deriveHint(language, maxWord, hintCount);
+        const newGuessed: WordState[] = wordStates.map((vh, idx) => {
+            if (vh.isGuessed) { return vh; }
+            if (!words[idx].includes(newHint)) { return vh; }
+            return { isGuessed: false, hints: vh.hints.concat([newHint]) };
+        }
+        );
+        setWordStates(newGuessed);
+    }
+
     /** Request to start the next game in the session */
     const actionNextGame = (ignorePressToContinue: boolean = false) => {
         if (!onRequestNextGame) { return; }
@@ -118,19 +174,20 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
     const onSubmit = (guess: string) => {
         if (!words.includes(guess)) { return false; }
 
-        let guessedANewWord = false;
+        let guessedANewWord: boolean = false;
+        let guessHints: string[] = [];
         const newGuessed: WordState[] = wordStates.map((vh, idx) => {
-            if (words[idx] !== guess) { return vh; }
-            guessedANewWord = !vh.isGuessed;
-            return { isGuessed: true };
+            if (words[idx] !== guess || vh.isGuessed) { return vh; }
+            guessedANewWord = true;
+            guessHints = vh.hints
+            return { isGuessed: true, hints: guessHints };
         });
 
         if (guessedANewWord) {
             play({ id: guessKey(guess.length === maxWord.length && !qualified) });
 
+            GameCache.push(mode, language, hintCount, { word: guess, hints: guessHints.length });
             setWordStates(newGuessed);
-            GameCache.push(mode, language, guess);
-
             setEndTime(endTime + gameConfig.addTime(guess));
             setGameEnd(wordStates.find((vh) => !vh.isGuessed) === undefined);
         }
@@ -191,6 +248,11 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
 
                 {/* Add top-right game-specific buttons (see styling in '../app.scss') */}
                 <div className={`Top Right`}>
+                    { gameConfig.maxHints > 0 &&
+                        <button className={`Button`} onClick={actionHint} disabled={!enableHints} >
+                            <FontAwesomeIcon icon={faSolid.faQuestion} />
+                        </button>
+                    }
                     {onRequestNextGame && !gameEnd &&
                         <button className={`Button`} onClick={() => setGameEnd(true)}>
                             <FontAwesomeIcon icon={faSolid.faForward} />

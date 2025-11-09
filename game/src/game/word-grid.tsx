@@ -4,7 +4,10 @@ import Word from "./word";
 
 import './word-grid.scss';
 
-export type WordState = { isGuessed: boolean }
+export type WordState = {
+    isGuessed: boolean;
+    hints: string[];
+};
 
 export interface WordGridProps {
     language: Language;
@@ -81,11 +84,14 @@ export const WordGrid = ({ language, words, wordStates, showAll }: WordGridProps
         <div className={`WordGrid`}>
             {wordColumns.map((c, i) => (
                 c.map(([w, j], ci) => {
+                    const wordState = wordStates[j];
                     const row = singleColumn ? Math.floor(j % actualColumnSize) + 1 : ci + 1;
                     const col = singleColumn ? Math.floor(j / actualColumnSize) + 1 : i + 1;
+
                     return <Word key={j} row={row} col={col}
                                     language={language}
-                                    word={w} guessed={wordStates[j].isGuessed} show={showAll}
+                                    word={w} guessed={wordState.isGuessed} hints={wordState.hints}
+                                    show={showAll}
                             />
                 })
             ))}

@@ -46,7 +46,9 @@ export const GetSessionConfig = (mode: Mode) => {
 export interface GameConfig {
     initialTime: number;
     addTime: (w: string) => number;
-    addScore: ((w: string) => number) | undefined;
+    addScore: ((w: string, hints: number) => number) | undefined;
+    multScore: number | undefined;
+    maxHints: number;
 }
 
 export const GetGameConfig = (mode: Mode, numberOfChars: number) : GameConfig =>  {
@@ -55,7 +57,14 @@ export const GetGameConfig = (mode: Mode, numberOfChars: number) : GameConfig =>
     const totalTime = Math.max(two_minutes, numberOfChars * 1000)
 
     const noopAddTime = (w: string) => 0;
-    const expScore = (w: string) => Math.round(Math.pow(w.length - 2, 2) * 100);
+
+    const expScore = (word: string, hints: number) => {
+        if (word.length === hints) { return 0; }
+
+        const wordScore = Math.pow(2, Math.max(word.length - 2, 0)) * 100;
+        const hintScore = Math.pow(2, hints);
+        return Math.round(wordScore / hintScore);
+    }
 
     switch (mode) {
     case Mode.DAILY:
@@ -63,18 +72,24 @@ export const GetGameConfig = (mode: Mode, numberOfChars: number) : GameConfig =>
             initialTime: Infinity,
             addTime: noopAddTime,
             addScore: undefined,
+            multScore: undefined,
+            maxHints: 3,
         };
     case Mode.UNLIMITED:
         return {
             initialTime: Infinity,
             addTime: noopAddTime,
             addScore: expScore,
+            multScore: 2,
+            maxHints: 3,
         };
     case Mode.TIMED:
         return {
             initialTime: totalTime,
             addTime: noopAddTime,
             addScore: expScore,
+            multScore: 2,
+            maxHints: 3,
         };
     case Mode.BLITZ:
         const initialTime = Math.max(thirty_seconds, totalTime / 7);
@@ -84,6 +99,8 @@ export const GetGameConfig = (mode: Mode, numberOfChars: number) : GameConfig =>
             initialTime: initialTime,
             addTime: (w: string) => w.length * timePerChar,
             addScore: expScore,
+            multScore: 2,
+            maxHints: 3,
         };
     }
 }
