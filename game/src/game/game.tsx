@@ -65,9 +65,6 @@ const Game = ({ anagrams, mode, language, accScore, round, onRequestNextGame }: 
         }
     );
 
-    /** Whether any word has been guessed. */
-    const guessedSome = wordStates.find(({isGuessed}) => isGuessed) !== undefined
-
     /** Whether all words have been guessed. */
     const guessedAll = wordStates.find(({isGuessed}) => !isGuessed) === undefined
 
