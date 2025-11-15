@@ -63,19 +63,15 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
     // that are updated via `useEffect`.
 
     // Number of hints given.
-    const [hintCount, setHintCount] = useState<number>(
-        () => GameCache.get(mode, language).hints
+    const [[hintIdx, hintsRemaining], setHints] = useState<[number, number]>(
+        () => GameCache.get(mode, language)?.hints || [0, gameConfig.maxHints]
     );
-    useEffect(() => {
-        if (!hintCount) { return; }
-        GameCache.push(mode, language, hintCount);
-    }, [mode, language, hintCount]);
 
     // Array with the state of each word.
     const [wordStates, setWordStates] = useState<WordState[]>(
         () => {
-            const hints = deriveHints(language, maxWord, hintCount);
-            const cachedGuesses = GameCache.get(mode, language).guessed;
+            const hints = deriveHints(language, maxWord, hintIdx);
+            const cachedGuesses = GameCache.get(mode, language)?.guessed || [];
             return Array(words.length)
                     .fill(undefined)
                     .map((_, i) => ({
@@ -87,7 +83,7 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
                             if (wordState) {
                                 return ({
                                     isGuessed: true,
-                                    hints: deriveHints(language, wordState.word, wordState.hints)
+                                    hints: wordState.hints.split('')
                                 });
                             }
                             return vh
@@ -109,7 +105,7 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
     );
 
     /** Whether it is possible to get more hints */
-    const enableHints = hintCount < gameConfig.maxHints;
+    const enableHints = hintsRemaining > 0 && !gameEnd;
 
     /** The score currently obtained as part of this game. */
     const currScore: number = (() => {
@@ -149,17 +145,29 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
         if (!enableHints) { return; }
 
         play({ id: "submit" });
-        setHintCount(hintCount + 1);
 
-        const newHint: string = deriveHint(language, maxWord, hintCount);
+        const remainingChars = new Set<string>();
+        for (let i = 0; i < words.length; ++i) {
+            if (wordStates[i].isGuessed) { continue; }
+            words[i].split('').forEach(c => remainingChars.add(c));
+        }
+
+        let newHint: string = '';
+        let hi = hintIdx;
+        do {
+            newHint = deriveHint(language, maxWord, hi++);
+        } while (!remainingChars.has(newHint));
+
         const newGuessed: WordState[] = wordStates.map((vh, idx) => {
             if (vh.isGuessed) { return vh; }
             if (!words[idx].includes(newHint)) { return vh; }
             return { isGuessed: false, hints: vh.hints.concat([newHint]) };
-        }
-        );
+        });
+        const newHintState : [number, number] = [hi, hintsRemaining-1]
+        GameCache.pushHints(mode, language, newHintState);
+        setHints(newHintState);
         setWordStates(newGuessed);
-    }
+    };
 
     /** Request to start the next game in the session */
     const actionNextGame = (ignorePressToContinue: boolean = false) => {
@@ -186,7 +194,7 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
         if (guessedANewWord) {
             play({ id: guessKey(guess.length === maxWord.length && !qualified) });
 
-            GameCache.push(mode, language, hintCount, { word: guess, hints: guessHints.length });
+            GameCache.pushGuess(mode, language, { word: guess, hints: guessHints.join() });
             setWordStates(newGuessed);
             setEndTime(endTime + gameConfig.addTime(guess));
             setGameEnd(wordStates.find((vh) => !vh.isGuessed) === undefined);
