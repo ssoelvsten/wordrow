@@ -1,0 +1,39 @@
+@import '../common.scss';
+
+.LoadingSpinner {
+    @include fullscreen();
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    color: $light-text-color;
+
+    .Spinner {
+        font-size: 42px;
+
+        @keyframes SpinnerReveal {
+            0%   { display: none;  }
+            100% { display: block; }
+        }
+
+        animation-name: TextReveal;
+        animation-duration: 0.5s;
+    }
+
+    .Text {
+        @keyframes TextReveal {
+            0%   { display: none;  opacity: 0; }
+            80%  { display: block; opacity: 0; }
+            100% { display: block; opacity: 1; }
+        }
+
+        animation-name: TextReveal;
+        animation-duration: 5s;
+    }
+}
+
+.DarkMode .LoadingSpinner {
+    color: $dark-text-color;
+}

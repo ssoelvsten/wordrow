@@ -5,6 +5,8 @@ import { SessionConfig, GetSessionConfig, Mode } from '../mode';
 
 import * as GameCache from './game-cache';
 import Game, { GameReport } from './game';
+import LoadingSpinner from './loading-spinner';
+
 import './session.scss';
 
 export interface GameIndex {
@@ -61,6 +63,9 @@ const Session = ({ mode, language }: SessionProps) => {
 
   return (
     <>
+      {!gameInstance &&
+        <LoadingSpinner language={language} />
+      }
       {gameInstance &&
         <div className="Session">
           <Game words={gameInstance.anagrams}
