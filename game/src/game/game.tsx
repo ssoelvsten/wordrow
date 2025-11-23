@@ -104,6 +104,13 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
         () => guessedAll
     );
 
+    /** Set the game as ended, if all words have been guessed. */
+    useEffect(() => {
+        if (wordStates.find((vh) => !vh.isGuessed) === undefined) {
+            setGameEnd(true);
+        }
+    }, [wordStates]);
+
     /** Whether it is possible to get more hints */
     const enableHints = hintsRemaining > 0 && !gameEnd;
 
@@ -204,7 +211,6 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
             GameCache.pushGuess(mode, language, { word: guess, hints: guessHints.join('') });
             setWordStates(newGuessed);
             setEndTime(endTime + gameConfig.addTime(guess));
-            setGameEnd(wordStates.find((vh) => !vh.isGuessed) === undefined);
         }
         return guessedANewWord;
     };
