@@ -161,7 +161,14 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
         const newGuessed: WordState[] = wordStates.map((vh, idx) => {
             if (vh.isGuessed) { return vh; }
             if (!words[idx].includes(newHint)) { return vh; }
-            return { isGuessed: false, hints: vh.hints.concat([newHint]) };
+
+            const hints = vh.hints.concat([newHint]);
+            const isGuessed = hints.length === words[idx].length;
+
+            if (isGuessed) {
+                GameCache.pushGuess(mode, language, { word: words[idx], hints: hints.join('') });
+            }
+            return { isGuessed, hints };
         });
         const newHintState : [number, number] = [hi, hintsRemaining-1]
         GameCache.pushHints(mode, language, newHintState);
