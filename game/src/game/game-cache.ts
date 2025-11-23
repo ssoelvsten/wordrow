@@ -51,7 +51,7 @@ function toLSHints(h: [number, number]) : string {
 function fromLSHints(str: string) : [number, number] | undefined{
     const h = JSON.parse(str);
 
-    if (Array.isArray(h) && h.length === 2 && Number.isInteger(h[0]) && Number.isInteger(h[1])) {
+    if (!Array.isArray(h) || h.length !== 2 || !Number.isInteger(h[0]) || !Number.isInteger(h[1])) {
         return undefined;
     }
 
