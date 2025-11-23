@@ -194,7 +194,7 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
         if (guessedANewWord) {
             play({ id: guessKey(guess.length === maxWord.length && !qualified) });
 
-            GameCache.pushGuess(mode, language, { word: guess, hints: guessHints.join() });
+            GameCache.pushGuess(mode, language, { word: guess, hints: guessHints.join('') });
             setWordStates(newGuessed);
             setEndTime(endTime + gameConfig.addTime(guess));
             setGameEnd(wordStates.find((vh) => !vh.isGuessed) === undefined);
