@@ -12,10 +12,10 @@ import * as GameCache from './game-cache';
 import ScoreBoard from './scoreboard';
 import EndScreen from './end-screen';
 import RoundBanner from './round-banner';
-
-import './game.scss';
 import Input from './input';
 import WordGrid, { WordState } from './word-grid';
+
+import './game.scss';
 
 export interface GameReport {
     qualified: boolean;

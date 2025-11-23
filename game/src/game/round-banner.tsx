@@ -1,6 +1,8 @@
 import React, { ReactElement } from 'react';
-import './round-banner.scss';
+
 import { Language } from '../language';
+
+import './round-banner.scss';
 
 interface RoundBannerProps {
     language: Language;

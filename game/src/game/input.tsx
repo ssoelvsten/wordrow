@@ -3,12 +3,13 @@ import useSound from 'use-sound';
 
 import * as faSolid from '@fortawesome/free-solid-svg-icons';
 
+import { randomHitKey, randomMissKey, SoundContext, soundMap, soundPath } from '../sound';
+import shuffle from '../shuffle';
+
 import InputButton from './input-button';
 import InputLetter from './input-letter';
 
 import './input.scss';
-import { randomHitKey, randomMissKey, SoundContext, soundMap, soundPath } from '../sound';
-import shuffle from '../shuffle';
 
 type CharIdx = [string, number | null];
 
