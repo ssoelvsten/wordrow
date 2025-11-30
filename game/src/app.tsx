@@ -16,7 +16,6 @@ import './app.scss';
 const LS_KEYS = {
   DarkMode: "DarkMode",
   Mode: "Mode",
-  HasPlayed: "HasPlayed",
   Language: "Language",
   Sound: "Sound",
 };
@@ -68,11 +67,7 @@ const App = () => {
     }
   );
 
-  const [inGame, setInGame] = useState<boolean>(() => {
-    // Go directly into a game, if settings have already been set
-    const ls_res = localStorage.getItem(LS_KEYS.HasPlayed);
-    return ls_res !== null;
-  });
+  const [inGame, setInGame] = useState<boolean>(false);
 
   // ------------------------------------------------------------------------
   // SAVE USER SETTINGS
@@ -84,10 +79,6 @@ const App = () => {
   }
 
   useEffect(updateLocalStorage, [darkMode, sound, language, mode]);
-
-  useEffect(() => {
-    if (inGame) { localStorage.setItem(LS_KEYS.HasPlayed, "true"); }
-  }, [inGame]);
 
   // ------------------------------------------------------------------------
   // Sound
