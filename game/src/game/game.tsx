@@ -16,6 +16,8 @@ import Input from './input';
 import WordGrid, { WordState } from './word-grid';
 
 import './game.scss';
+import HintPopup from './popup-hint';
+import EndPopup from './popup-end';
 
 export interface GameReport {
     qualified: boolean;
@@ -145,6 +147,29 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
     }, [gameEnd]);
 
     // --------------------------------------------------------------------------------------------
+    // POP UP STATE
+
+    // Whether the hint pop-up is shown.
+    const [showHintPopup, setShowHintPopup] = useState<boolean>(
+        () => false
+    );
+
+    useEffect(() => {
+        play({ id: 'button' });
+    }, [showHintPopup]);
+
+    // Whether the gameEnd pop-up is shown.
+    const [showEndPopup, setShowEndPopup] = useState<boolean>(
+        () => false
+    );
+
+    useEffect(() => {
+        play({ id: 'button' });
+    }, [showEndPopup]);
+
+    const showPopup = showHintPopup || showEndPopup;
+
+    // --------------------------------------------------------------------------------------------
     // GAME LOGIC
 
     /** Request a hint */
@@ -220,7 +245,6 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
         setGameEnd(true);
     };
 
-
     // --------------------------------------------------------------------------------------------
     // VISUAL
 
@@ -281,12 +305,18 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
                 {/* Add top-right game-specific buttons (see styling in '../app.scss') */}
                 <div className={`Top Right`}>
                     { gameConfig.maxHints > 0 &&
-                        <button className={`Button`} onClick={actionHint} disabled={!enableHints} >
+                        <button className={`Button`}
+                                onClick={() => setShowHintPopup(true)}
+                                disabled={showPopup || !enableHints}
+                        >
                             <FontAwesomeIcon icon={faSolid.faQuestion} />
                         </button>
                     }
                     {onRequestNextGame && !gameEnd &&
-                        <button className={`Button`} onClick={() => setGameEnd(true)}>
+                        <button className={`Button`}
+                                onClick={() => setShowEndPopup(true)}
+                                disabled={showPopup}
+                        >
                             <FontAwesomeIcon icon={faSolid.faForward} />
                         </button>
                     }
@@ -296,6 +326,21 @@ const Game = ({ words, mode, language, accScore, round, onRequestNextGame }: Gam
                         </button>
                     }
                 </div>
+
+                {/* Pop-up Menus */}
+                { showHintPopup &&
+                    <HintPopup language={language}
+                               onNo={() => setShowHintPopup(false)}
+                               onYes={() => { actionHint(); setShowHintPopup(false); }}
+                    />
+                }
+
+                { showEndPopup &&
+                    <EndPopup language={language}
+                              onNo={() => setShowEndPopup(false)}
+                              onYes={() => { setGameEnd(true); setShowEndPopup(false); }}
+                    />
+                }
             </div>
         </>
     );

@@ -1,0 +1,55 @@
+@import './common.scss';
+
+.PopupButton {
+    flex: 1 0 0;
+
+    cursor: pointer;
+
+    background-color: $light-background;
+    color: $light-text-color;
+    border-color: $light-text-color;
+
+    &.Flip {
+        background-color: $dark-background;
+        color: $dark-text-color;
+        border-color: $dark-text-color;
+    }
+    opacity: $opacity-hover;
+    &:hover {
+        opacity: $opacity-selected;
+    }
+
+    font: inherit;
+
+    font-size: 32px;
+    line-height: 32px;
+    @media screen and (max-width: $small-screen-width) {
+        font-size: 28px;
+        line-height: 28px;
+    }
+    @media screen and (max-width: $tiny-screen-width) {
+        font-size: 18px;
+        line-height: 18px;
+    }
+
+    text-transform: uppercase;
+    text-align: center;
+
+    border-width: 1px;
+    border-radius: 5px;
+
+    padding: 5px;
+    margin: 5px;
+}
+
+.DarkMode .PopupButton {
+    background-color: $dark-background;
+    color: $dark-text-color;
+    border-color: $dark-text-color;
+
+    &.Flip {
+        background-color: $light-background;
+        color: $light-text-color;
+        border-color: $light-text-color;
+    }
+}
