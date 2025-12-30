@@ -1,5 +1,15 @@
 @import 'common.scss';
 
+.Blur {
+    @include fullscreen();
+    @include not-selectable();
+
+    position: fixed;
+
+    backdrop-filter: blur(2px);
+    z-index: 40;
+}
+
 .Popup {
     @include not-selectable();
     z-index: 42;

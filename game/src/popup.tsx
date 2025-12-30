@@ -10,14 +10,17 @@ export interface PopupProps {
 }
 
 const Popup = forwardRef(({ buttons, className, onKeyDown, children }: PopupProps, ref: React.ForwardedRef<any>) =>
-    <div className={`Popup ${className}`} tabIndex={0} onKeyDown={onKeyDown} ref={ref}>
-        <div className="Children">
-            {children}
+    <>
+        <div className="Blur" />
+        <div className={`Popup ${className}`} tabIndex={0} onKeyDown={onKeyDown} ref={ref}>
+            <div className="Children">
+                {children}
+            </div>
+            <div className="Buttons">
+                {buttons && buttons.map((p, i) => ({ ...p, key: i })).map(PopUpButton)}
+            </div>
         </div>
-        <div className="Buttons">
-            {buttons && buttons.map((p, i) => ({ ...p, key: i })).map(PopUpButton)}
-        </div>
-    </div>
+    </>
 );
 
 export default Popup;
