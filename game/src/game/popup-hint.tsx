@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { Language } from "../language";
 import GamePopup from "./popup";
 
@@ -7,7 +8,7 @@ interface HintPopupProps {
     language: Language
 }
 
-const HintPopup = ({ onYes, onNo, language }: HintPopupProps) => {
+const HintPopup = forwardRef(({ onYes, onNo, language }: HintPopupProps, ref: React.ForwardedRef<any>) => {
     let text = <></>;
 
     switch (language) {
@@ -42,9 +43,9 @@ const HintPopup = ({ onYes, onNo, language }: HintPopupProps) => {
             break;
     }
 
-    return <GamePopup onYes={onYes} onNo={onNo} language={language}>
+    return <GamePopup ref={ref} onYes={onYes} onNo={onNo} language={language}>
         {text}
     </GamePopup>;
-};
+});
 
 export default HintPopup;

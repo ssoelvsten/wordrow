@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { forwardRef, ReactElement } from "react";
 import { Language } from "../language";
 import Popup from "../popup";
 
@@ -9,7 +9,9 @@ interface GamePopupProps {
     children: ReactElement;
 }
 
-const GamePopup = ({ onYes, onNo, children, language }: GamePopupProps) => {
+const GamePopup = forwardRef(({ onYes, onNo, children, language }: GamePopupProps, ref: React.ForwardedRef<any>) => {
+    // --------------------------------------------------------------------------------------------
+    // Button Translations
     let nText = "";
     let yText = "";
 
@@ -32,14 +34,35 @@ const GamePopup = ({ onYes, onNo, children, language }: GamePopupProps) => {
             break;
     }
 
+    // --------------------------------------------------------------------------------------------
+    // KEY LISTENER
+
+    /** Key listener for pop up keyboard interactions. */
+    const onKey = (e: React.KeyboardEvent) => {
+        switch (e.key) {
+            case "Escape":
+            case "n":
+                onNo(); break;
+            case "Enter":
+            case "j":
+            case "y":
+            case "a":
+                onYes(); break;
+            default:
+                break;
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // VISUAL
     return (
-        <Popup buttons={[
+        <Popup ref={ref} onKeyDown={onKey} buttons={[
             { text: nText, onClick: onNo },
             { text: yText, onClick: onYes, highlight: true }
         ]}>
             {children}
         </Popup>
     );
-};
+});
 
 export default GamePopup;

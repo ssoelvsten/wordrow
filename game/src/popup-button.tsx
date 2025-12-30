@@ -1,13 +1,14 @@
 import './popup-button.scss'
 
 export interface PopUpButtonProps {
+    key?: React.Key;
     text: string;
     onClick: () => void;
     highlight?: boolean;
 }
 
-const PopUpButton = ({ text, onClick, highlight }: PopUpButtonProps) =>
-    <button className={`PopupButton ${highlight ? "Flip" : ""}`} onClick={onClick}>
+const PopUpButton = ({ key, text, onClick, highlight }: PopUpButtonProps) =>
+    <button key={key} className={`PopupButton ${highlight ? "Flip" : ""}`} onClick={onClick}>
         {text}
     </button>
 ;

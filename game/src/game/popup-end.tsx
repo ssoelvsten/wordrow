@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { Language } from "../language";
 import GamePopup from "./popup";
 
@@ -7,7 +8,7 @@ interface EndPopupProps {
     language: Language
 }
 
-const EndPopup = ({ onYes, onNo, language }: EndPopupProps) => {
+const EndPopup = forwardRef(({ onYes, onNo, language }: EndPopupProps, ref: React.ForwardedRef<any>) => {
     let text = <></>;
 
     switch (language) {
@@ -41,9 +42,9 @@ const EndPopup = ({ onYes, onNo, language }: EndPopupProps) => {
             break;
     }
 
-    return <GamePopup onYes={onYes} onNo={onNo} language={language}>
+    return <GamePopup ref={ref} onYes={onYes} onNo={onNo} language={language}>
         {text}
     </GamePopup>;
-};
+});
 
 export default EndPopup;
