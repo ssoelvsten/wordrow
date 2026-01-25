@@ -1,10 +1,10 @@
-@import '../common.scss';
+@use '../common.scss';
 
 /* Extends the common `.Input .Row *` base from 'input.scss'. */
 .Input .Row .Button {
-    background-color: $light-background;
+    background-color: common.$light-background;
 }
 
 .DarkMode .Input .Row .Button {
-    background-color: $dark-background;
+    background-color: common.$dark-background;
 }

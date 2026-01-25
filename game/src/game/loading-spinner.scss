@@ -1,14 +1,14 @@
-@import '../common.scss';
+@use '../common.scss';
 
 .LoadingSpinner {
-    @include fullscreen();
+    @include common.fullscreen();
 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 
-    color: $light-text-color;
+    color: common.$light-text-color;
 
     .Spinner {
         font-size: 42px;
@@ -35,5 +35,5 @@
 }
 
 .DarkMode .LoadingSpinner {
-    color: $dark-text-color;
+    color: common.$dark-text-color;
 }

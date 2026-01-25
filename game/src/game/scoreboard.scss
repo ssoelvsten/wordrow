@@ -1,7 +1,7 @@
-@import '../common.scss';
+@use '../common.scss';
 
 .ScoreBoard {
-    @include not-selectable();
+    @include common.not-selectable();
     $scoreboard-font-size: 19px;
     $scoreboard-font-size-large: 25px;
     $scoreboard-small-factor: 0.8;
@@ -20,10 +20,10 @@
     text-align: center;
     font-size: $scoreboard-font-size;
 
-    @media screen and (max-width: $small-screen-width) {
+    @media screen and (max-width: common.$small-screen-width) {
         font-size: $scoreboard-small-factor*$scoreboard-font-size;
     }
-    @media screen and (max-width: $tiny-screen-width) {
+    @media screen and (max-width: common.$tiny-screen-width) {
         font-size: $scoreboard-tiny-factor*$scoreboard-font-size;
     }
 
@@ -31,30 +31,30 @@
 
     min-height: $scoreboard-font-size-large + 14px;
 
-    @media screen and (max-width: $small-screen-width) {
+    @media screen and (max-width: common.$small-screen-width) {
         min-height: $scoreboard-small-factor*(2*$scoreboard-font-size + $scoreboard-font-size-large) + 24px;
     }
-    @media screen and (max-width: $tiny-screen-width) {
+    @media screen and (max-width: common.$tiny-screen-width) {
         min-height: $scoreboard-tiny-factor*(2*$scoreboard-font-size + $scoreboard-font-size-large) + 24px;
     }
 
-    color: $light-text-color;
+    color: common.$light-text-color;
 
     div {
         display: inline-block;
 
-        @media screen and (max-width: $small-screen-width) {
+        @media screen and (max-width: common.$small-screen-width) {
             display: block;
         }
 
         &.Time.Alarm {
             @keyframes timeAlarmLight {
                 from {
-                    color: $light-text-color;
+                    color: common.$light-text-color;
                 }
 
                 to {
-                    color: $light-bad;
+                    color: common.$light-bad;
                 }
             }
 
@@ -68,7 +68,7 @@
             margin: 0 8px;
             font-size: $scoreboard-font-size-large;
 
-            @media screen and (max-width: $small-screen-width) {
+            @media screen and (max-width: common.$small-screen-width) {
                 font-size: $scoreboard-small-factor*$scoreboard-font-size-large;
             }
 
@@ -79,15 +79,15 @@
                 $flag-icon-size: $scoreboard-font-size;
                 font-size: $flag-icon-size;
 
-                @media screen and (max-width: $small-screen-width) {
+                @media screen and (max-width: common.$small-screen-width) {
                     font-size: $scoreboard-small-factor*$flag-icon-size;
                 }
 
-                color: $light-text-color;
+                color: common.$light-text-color;
             }
 
             .Bar {
-                @media screen and (max-width: $small-screen-width) {
+                @media screen and (max-width: common.$small-screen-width) {
                     display: none;
                 }
             }
@@ -98,16 +98,16 @@
 }
 
 .DarkMode .ScoreBoard {
-    color: $dark-text-color;
+    color: common.$dark-text-color;
 
     div.Time.Alarm {
         @keyframes timeAlarmDark {
             from {
-                color: $dark-text-color;
+                color: common.$dark-text-color;
             }
 
             to {
-                color: $dark-bad;
+                color: common.$dark-bad;
             }
         }
 
@@ -116,7 +116,7 @@
 
     div.RoundNumber {
         svg {
-            color: $dark-text-color;
+            color: common.$dark-text-color;
         }
     }
 }

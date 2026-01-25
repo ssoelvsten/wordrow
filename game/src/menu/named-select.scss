@@ -1,7 +1,7 @@
-@import "../common.scss";
+@use "../common.scss";
 
 .NamedSelect {
-    color: $light-text-color;
+    color: common.$light-text-color;
 
     width: max-content;
     cursor: pointer;
@@ -9,7 +9,7 @@
     font-size: 24px;
     font-weight: 400;
 
-    @media screen and (max-width: $medium-screen-width) {
+    @media screen and (max-width: common.$medium-screen-width) {
         font-size: 16px;
     }
 
@@ -20,24 +20,24 @@
     justify-content: center;
 
     &.Selected {
-        opacity: $opacity-selected;
+        opacity: common.$opacity-selected;
         font-size: 32px;
         font-weight: 600;
 
-        @media screen and (max-width: $medium-screen-width) {
+        @media screen and (max-width: common.$medium-screen-width) {
             font-size: 24px;
         }
     }
 
     &:not(.Selected) {
-        opacity: $opacity-unselected;
+        opacity: common.$opacity-unselected;
 
         &:hover {
-            opacity: $opacity-hover;
+            opacity: common.$opacity-hover;
         }
     }
 }
 
 .DarkMode .NamedSelect {
-    color: $dark-text-color;
+    color: common.$dark-text-color;
 }

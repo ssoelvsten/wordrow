@@ -1,4 +1,4 @@
-@import '../common.scss';
+@use '../common.scss';
 
 .Flag {
     flex: 0;
@@ -10,72 +10,73 @@
     $flag-width: (
         320 * $flag-scale
     );
-$flag-height: (
-    160 * $flag-scale
-);
 
-width: $flag-width;
+    $flag-height: (
+        160 * $flag-scale
+    );
 
-img {
-    opacity: $opacity-selected;
     width: $flag-width;
-    max-width: $flag-width;
 
-    $flag-medium-factor: 0.7;
+    img {
+        opacity: common.$opacity-selected;
+        width: $flag-width;
+        max-width: $flag-width;
 
-    @media screen and (max-width: $medium-screen-width) {
-        width: $flag-medium-factor*$flag-width;
-        max-width: $flag-medium-factor*$flag-width;
+        $flag-medium-factor: 0.7;
+
+        @media screen and (max-width: common.$medium-screen-width) {
+            width: $flag-medium-factor*$flag-width;
+            max-width: $flag-medium-factor*$flag-width;
+        }
+
+        border-radius: 5%;
+        border: 0.32px;
+        border-color: common.$light-text-color;
     }
 
-    border-radius: 5%;
-    border: 0.32px;
-    border-color: $light-text-color;
-}
+    .Index {
+        opacity: common.$opacity-selected;
+        color: common.$light-text-color;
 
-.Index {
-    opacity: $opacity-selected;
-    color: $light-text-color;
+        margin: auto;
+        text-align: center;
 
-    margin: auto;
-    text-align: center;
+        font-size: 16px;
 
-    font-size: 16px;
-
-    @media screen and (max-width: $medium-screen-width) {
-        font-size: 11px;
+        @media screen and (max-width: common.$medium-screen-width) {
+            font-size: 11px;
+        }
     }
-}
 }
 
 .Flag:not(.Selected) {
     img {
-        opacity: $opacity-unselected;
+        opacity: common.$opacity-unselected;
         filter: grayscale(100%);
     }
 
     .Index {
-        opacity: $opacity-unselected;
+        opacity: common.$opacity-unselected;
     }
 
     &:hover {
         img {
-            opacity: $opacity-hover;
+            opacity: common.$opacity-hover;
             filter: grayscale(40%);
         }
 
         .Index {
-            opacity: $opacity-hover;
+            opacity: common.$opacity-hover;
         }
     }
 }
 
 .DarkMode .Flag {
     img {
-        border-color: $dark-text-color;
+        border-color: common.$dark-text-color;
     }
 
     .Index {
-        color: $dark-text-color;
+        color: common.$dark-text-color;
     }
 }

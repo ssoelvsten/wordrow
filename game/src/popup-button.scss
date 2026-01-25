@@ -1,33 +1,33 @@
-@import './common.scss';
+@use './common.scss';
 
 .PopupButton {
     flex: 1 0 0;
 
     cursor: pointer;
 
-    background-color: $light-background;
-    color: $light-text-color;
-    border-color: $light-text-color;
+    background-color: common.$light-background;
+    color: common.$light-text-color;
+    border-color: common.$light-text-color;
 
     &.Flip {
-        background-color: $dark-background;
-        color: $dark-text-color;
-        border-color: $dark-text-color;
+        background-color: common.$dark-background;
+        color: common.$dark-text-color;
+        border-color: common.$dark-text-color;
     }
-    opacity: $opacity-hover;
+    opacity: common.$opacity-hover;
     &:hover {
-        opacity: $opacity-selected;
+        opacity: common.$opacity-selected;
     }
 
     font: inherit;
 
     font-size: 32px;
     line-height: 32px;
-    @media screen and (max-width: $small-screen-width) {
+    @media screen and (max-width: common.$small-screen-width) {
         font-size: 28px;
         line-height: 28px;
     }
-    @media screen and (max-width: $tiny-screen-width) {
+    @media screen and (max-width: common.$tiny-screen-width) {
         font-size: 18px;
         line-height: 18px;
     }
@@ -43,13 +43,13 @@
 }
 
 .DarkMode .PopupButton {
-    background-color: $dark-background;
-    color: $dark-text-color;
-    border-color: $dark-text-color;
+    background-color: common.$dark-background;
+    color: common.$dark-text-color;
+    border-color: common.$dark-text-color;
 
     &.Flip {
-        background-color: $light-background;
-        color: $light-text-color;
-        border-color: $light-text-color;
+        background-color: common.$light-background;
+        color: common.$light-text-color;
+        border-color: common.$light-text-color;
     }
 }

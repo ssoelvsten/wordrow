@@ -1,4 +1,4 @@
-@import '../common.scss';
+@use '../common.scss';
 
 .WordGrid {
     width: 100%;
@@ -12,7 +12,7 @@
     justify-content: center;
 
     /* Scroll Bar (Firefox) */
-    scrollbar-color: $light-text-color $light-input;
+    scrollbar-color: common.$light-text-color common.$light-input;
     scrollbar-width: thin;
 
     /* Scroll Bar (Others) */
@@ -21,12 +21,12 @@
     }
 
     &::-webkit-scrollbar-track {
-        background: $light-input;
+        background: common.$light-input;
     }
 
     &::-webkit-scrollbar-thumb {
-        background-color: $light-input;
+        background-color: common.$light-input;
         border-radius: 1px;
-        border: solid $light-text-color;
+        border: solid common.$light-text-color;
     }
 }

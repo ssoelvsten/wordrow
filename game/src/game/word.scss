@@ -1,11 +1,11 @@
-@import '../common.scss';
+@use '../common.scss';
 
 .Word {
     flex: 0;
     display: flex;
     margin: 0 16px;
 
-    @media screen and (max-width: $small-screen-width) {
+    @media screen and (max-width: common.$small-screen-width) {
         margin: 0 8px;
     }
 
@@ -26,40 +26,40 @@
     .Letter {
         $letter-font-size: 16px;
         $letter-gap: 5px;
-        @include borderedCharBox($letter-font-size, $letter-gap);
+        @include common.borderedCharBox($letter-font-size, $letter-gap);
         margin-top: $letter-font-size;
 
         $letter-medium-factor: 0.7;
 
-        @media screen and (max-width: $medium-screen-width) {
-            @include borderedCharBox($letter-medium-factor*$letter-font-size,
-                $letter-medium-factor*$letter-gap);
+        @media screen and (max-width: common.$medium-screen-width) {
+            @include common.borderedCharBox($letter-medium-factor*$letter-font-size,
+                                            $letter-medium-factor*$letter-gap);
             margin-top: $letter-medium-factor*$letter-font-size;
         }
 
         $letter-small-factor: 0.5;
 
-        @media screen and (max-width: $small-screen-width) {
-            @include borderedCharBox($letter-small-factor*$letter-font-size,
-                $letter-small-factor*$letter-gap);
+        @media screen and (max-width: common.$small-screen-width) {
+            @include common.borderedCharBox($letter-small-factor*$letter-font-size,
+                                            $letter-small-factor*$letter-gap);
             margin-top: $letter-small-factor*$letter-font-size;
         }
 
-        color: $light-text-color;
+        color: common.$light-text-color;
     }
 
     &.Guessed .Letter:not(.Hint) {
-        background-color: $light-good;
+        background-color: common.$light-good;
 
         @keyframes WordRevealLight {
 
             /* flash animation when guessed */
             from {
-                background-color: $light-background;
+                background-color: common.$light-background;
             }
 
             to {
-                background-color: $light-good;
+                background-color: common.$light-good;
             }
         }
 
@@ -70,21 +70,21 @@
 
 .DarkMode .Word {
     .Letter {
-        color: $dark-text-color;
+        color: common.$dark-text-color;
     }
 
     &.Guessed .Letter:not(.Hint) {
-        background-color: $dark-good;
+        background-color: common.$dark-good;
 
         @keyframes WordRevealDark {
 
             /* flash animation when guessed */
             from {
-                background-color: $dark-background;
+                background-color: common.$dark-background;
             }
 
             to {
-                background-color: $dark-good;
+                background-color: common.$dark-good;
             }
         }
 

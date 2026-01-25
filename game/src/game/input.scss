@@ -1,4 +1,4 @@
-@import '../common.scss';
+@use '../common.scss';
 
 $input-font-size: 32px;
 $input-gap: 16px;
@@ -22,37 +22,37 @@ $input-tiny-factor: 0.35;
     .Row > * {
         flex: 0;
 
-        color: $light-text-color;
+        color: common.$light-text-color;
 
-        @include borderedCharBox($input-font-size, $input-gap);
+        @include common.borderedCharBox($input-font-size, $input-gap);
 
-        @media screen and (max-width: $medium-screen-width) {
-            @include borderedCharBox($input-medium-factor*$input-font-size,
-                $input-medium-factor*$input-gap);
+        @media screen and (max-width: common.$medium-screen-width) {
+            @include common.borderedCharBox($input-medium-factor*$input-font-size,
+                                            $input-medium-factor*$input-gap);
         }
 
-        @media screen and (max-width: $small-screen-width) {
-            @include borderedCharBox($input-small-factor*$input-font-size,
-                $input-small-factor*$input-gap);
+        @media screen and (max-width: common.$small-screen-width) {
+            @include common.borderedCharBox($input-small-factor*$input-font-size,
+                                            $input-small-factor*$input-gap);
         }
 
-        @media screen and (max-width: $tiny-screen-width) {
-            @include borderedCharBox($input-tiny-factor*$input-font-size,
-                $input-tiny-factor*$input-gap);
+        @media screen and (max-width: common.$tiny-screen-width) {
+            @include common.borderedCharBox($input-tiny-factor*$input-font-size,
+                                            $input-tiny-factor*$input-gap);
         }
 
         /* Overwrite values in 'borderedCharBox' for vertical gap */
         margin-bottom: calc($input-gap / 2);
         margin-top: calc($input-gap / 2);
 
-        @media screen and (max-width: $medium-screen-width) {
+        @media screen and (max-width: common.$medium-screen-width) {
             margin-bottom: calc($input-medium-factor*$input-gap / 2);
             margin-top: calc($input-medium-factor*$input-gap / 2);
         }
 
         /* Overwrite values in 'borderedCharBox' for blink on successful guess. */
         border-width: 3px;
-        border-color: $light-background;
+        border-color: common.$light-background;
 
         /* Mouse Interaction */
         &:not(.Disabled) {
@@ -66,6 +66,6 @@ $input-tiny-factor: 0.35;
 }
 
 .DarkMode .Input .Row * {
-    color: $dark-text-color;
-    border-color: $dark-background;
+    color: common.$dark-text-color;
+    border-color: common.$dark-background;
 }

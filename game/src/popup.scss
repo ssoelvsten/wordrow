@@ -1,8 +1,8 @@
-@import 'common.scss';
+@use 'common.scss';
 
 .Blur {
-    @include fullscreen();
-    @include not-selectable();
+    @include common.fullscreen();
+    @include common.not-selectable();
 
     position: fixed;
 
@@ -11,7 +11,7 @@
 }
 
 .Popup {
-    @include not-selectable();
+    @include common.not-selectable();
     z-index: 42;
 
     position: fixed;
@@ -25,22 +25,22 @@
     left: calc(max(20%, (100% - $max-width)/2));
     top: calc(max(20%, (100% - $max-height)/2));
 
-    background-color: $light-background;
-    color: $light-text-color;
+    background-color: common.$light-background;
+    color: common.$light-text-color;
 
     padding: 16px;
     border-style: solid;
     border-width: 1px;
     border-radius: 11px;
-    border-color: $light-text-color;
+    border-color: common.$light-text-color;
 
     .Children {
         font-size: 22px;
 
-        @media screen and (max-width: $small-screen-width) {
+        @media screen and (max-width: common.$small-screen-width) {
             font-size: 20px;
         }
-        @media screen and (max-width: $tiny-screen-width) {
+        @media screen and (max-width: common.$tiny-screen-width) {
             font-size: 14px;
         }
 
@@ -53,8 +53,8 @@
 }
 
 .DarkMode .Popup {
-    background-color: $dark-background;
-    color: $dark-text-color;
+    background-color: common.$dark-background;
+    color: common.$dark-text-color;
 
-    border-color: $dark-text-color;
+    border-color: common.$dark-text-color;
 }

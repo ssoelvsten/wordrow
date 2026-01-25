@@ -1,8 +1,8 @@
-@import '../common.scss';
+@use '../common.scss';
 
 /* Extends the common `.Input .Row *` base from 'input.scss'. */
 .Input .Row .Letter {
-    background-color: $light-input;
+    background-color: common.$light-input;
 }
 
 .Input .Row.Success .Letter {
@@ -10,15 +10,15 @@
 
         /* flash animation when guessed */
         0% {
-            border-color: $light-background;
+            border-color: common.$light-background;
         }
 
         50% {
-            border-color: $light-good;
+            border-color: common.$light-good;
         }
 
         100% {
-            border-color: $light-background;
+            border-color: common.$light-background;
         }
     }
 
@@ -28,7 +28,7 @@
 }
 
 .DarkMode .Input .Letter {
-    background-color: $dark-input;
+    background-color: common.$dark-input;
 }
 
 .DarkMode .Input .Row.Success .Letter {
@@ -36,15 +36,15 @@
 
         /* flash animation when guessed */
         0% {
-            border-color: $dark-background;
+            border-color: common.$dark-background;
         }
 
         50% {
-            border-color: $dark-good;
+            border-color: common.$dark-good;
         }
 
         100% {
-            border-color: $dark-background;
+            border-color: common.$dark-background;
         }
     }
 

@@ -1,4 +1,4 @@
-@import '../common.scss';
+@use '../common.scss';
 
 .EndScreen {
     outline: none;
@@ -9,9 +9,9 @@
     margin-top: 16px;
     margin-bottom: 32px;
 
-    color: $light-text-color;
+    color: common.$light-text-color;
 
-    @media screen and (max-width: $small-screen-width) {
+    @media screen and (max-width: common.$small-screen-width) {
         font-size: 10px;
     }
 
@@ -21,11 +21,11 @@
         font-size: 48px;
         font-weight: 600;
 
-        @media screen and (max-width: $medium-screen-width) {
+        @media screen and (max-width: common.$medium-screen-width) {
             font-size: 24px;
         }
 
-        @media screen and (max-width: $small-screen-width) {
+        @media screen and (max-width: common.$small-screen-width) {
             font-size: 16px;
         }
 
@@ -40,7 +40,7 @@
         }
 
         &.hide {
-            color: $light-background;
+            color: common.$light-background;
         }
 
         &.show {
@@ -50,9 +50,9 @@
 }
 
 .DarkMode .EndScreen {
-    color: $dark-text-color;
+    color: common.$dark-text-color;
 
     .Continue.hide {
-        color: $dark-background;
+        color: common.$dark-background;
     }
 }

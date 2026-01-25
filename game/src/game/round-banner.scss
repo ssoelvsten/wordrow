@@ -1,5 +1,4 @@
-@import '../common.scss';
-@import './word.scss';
+@use '../common.scss';
 
 .RoundBanner {
     $height-hidden: 0;
@@ -8,12 +7,12 @@
     --announcement_height: #{$height-full_large};
 
     $height-full_medium: 100px;
-    @media screen and (max-width: $medium-screen-width) {
+    @media screen and (max-width: common.$medium-screen-width) {
         --announcement_height: #{$height-full_medium};
     }
 
     $height-full_small: 70px;
-    @media screen and (max-width: $small-screen-width) {
+    @media screen and (max-width: common.$small-screen-width) {
         --announcement_height: #{$height-full_small};
     }
 
@@ -35,21 +34,21 @@
 
     $top-letter-rounding_medium: 31.4px;
     $top-letter-offset_medium: 15px;
-    @media screen and (max-width: $medium-screen-width) {
+    @media screen and (max-width: common.$medium-screen-width) {
         --announcement_top_rounding: #{$top-letter-rounding_medium};
         --announcement_top_offset: #{$top-letter-offset_medium};
     }
 
     $top-letter-rounding_small: 23px;
     $top-letter-offset_small: 12px;
-    @media screen and (max-width: $small-screen-width) {
+    @media screen and (max-width: common.$small-screen-width) {
         --announcement_top_rounding: #{$top-letter-rounding_small};
         --announcement_top_offset: #{$top-letter-offset_small};
     }
 
     $top-letter-rounding_tiny: $top-letter-rounding_small;
     $top-letter-offset_tiny: 12px;
-    @media screen and (max-width: $tiny-screen-width) {
+    @media screen and (max-width: common.$tiny-screen-width) {
         --announcement_top_rounding: #{$top-letter-rounding_tiny};
         --announcement_top_offset: #{$top-letter-rounding_tiny};
     }
@@ -59,7 +58,7 @@
                         35vh - (var(--announcement_height) / 2),
                          var(--announcement_top_rounding)));
 
-    background-color: $light-background;
+    background-color: common.$light-background;
 
     .Content {
         position: relative;
@@ -72,7 +71,7 @@
         }
 
         left: -100%;
-        color: $light-text-color;
+        color: common.$light-text-color;
         font-size: calc(var(--announcement_height) * 0.8);
         text-align: center;
         text-transform: uppercase;
@@ -93,9 +92,9 @@
 }
 
 .DarkMode .RoundBanner {
-    background-color: $dark-background;
+    background-color: common.$dark-background;
 
     .Content {
-        color: $dark-text-color;
+        color: common.$dark-text-color;
     }
 }

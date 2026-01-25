@@ -1,10 +1,10 @@
-@import 'common.scss';
+@use 'common.scss';
 
 .App {
-    @include fullscreen();
+    @include common.fullscreen();
 
-    background-color: $light-background;
-    color: $light-text-color;
+    background-color: common.$light-background;
+    color: common.$light-text-color;
 
     /* Fixed Content */
     .Top {
@@ -19,12 +19,12 @@
             border: none;
 
             font-size: 19px;
-            @media screen and (max-width: $small-screen-width) {
+            @media screen and (max-width: common.$small-screen-width) {
                 font-size: 16px;
             }
 
-            background-color: $light-background;
-            color: $light-text-color;
+            background-color: common.$light-background;
+            color: common.$light-text-color;
 
             &:not(:disabled) {
                 cursor: pointer;
@@ -52,13 +52,13 @@
 }
 
 .App.DarkMode {
-    background-color: $dark-background;
+    background-color: common.$dark-background;
 
     /* Global buttons */
     .Top {
         .Button {
-            background-color: $dark-background;
-            color: $dark-text-color;
+            background-color: common.$dark-background;
+            color: common.$dark-text-color;
         }
     }
 }

@@ -1,7 +1,7 @@
-@import '../common.scss';
+@use '../common.scss';
 
 .Menu {
-    @include fullscreen;
+    @include common.fullscreen;
 
     display: flex;
     flex-direction: column;
@@ -16,7 +16,7 @@
         cursor: default;
 
         margin-bottom: 64px;
-        @media screen and (max-width: $medium-screen-width) {
+        @media screen and (max-width: common.$medium-screen-width) {
             margin-bottom: 32px;
         }
 
@@ -31,21 +31,21 @@
         .Letter {
             $letter-font-size: 48px;
             $letter-gap: 5px;
-            @include borderedCharBox($letter-font-size, $letter-gap);
+            @include common.borderedCharBox($letter-font-size, $letter-gap);
 
             $letter-medium-factor: 0.7;
-            @media screen and (max-width: $medium-screen-width) {
-                @include borderedCharBox($letter-medium-factor*$letter-font-size,
-                                         $letter-medium-factor*$letter-gap);
+            @media screen and (max-width: common.$medium-screen-width) {
+                @include common.borderedCharBox($letter-medium-factor*$letter-font-size,
+                                                $letter-medium-factor*$letter-gap);
             }
 
             $letter-small-factor: 0.5;
-            @media screen and (max-width: $small-screen-width) {
-                @include borderedCharBox($letter-small-factor*$letter-font-size,
-                                         $letter-small-factor*$letter-gap);
+            @media screen and (max-width: common.$small-screen-width) {
+                @include common.borderedCharBox($letter-small-factor*$letter-font-size,
+                                                $letter-small-factor*$letter-gap);
             }
 
-            color: $light-text-color;
+            color: common.$light-text-color;
         }
     }
 
@@ -56,14 +56,14 @@
         font-size: 40px;
         margin: 16px 0;
 
-        @media screen and (max-width: $medium-screen-width) {
+        @media screen and (max-width: common.$medium-screen-width) {
             font-size: 24px;
             margin: 24px 0;
         }
 
         cursor: default;
 
-        color: $light-text-color;
+        color: common.$light-text-color;
     }
 
     /* ----------------- Language Selection ----------------- */
@@ -92,7 +92,7 @@
     /* ---------------------- Start Game --------------------- */
     .StartGame {
         margin-top: 64px;
-        color: $light-text-color;
+        color: common.$light-text-color;
         text-align: center;
 
         font-size: 16px;
@@ -116,18 +116,18 @@
 .DarkMode .Menu {
     .GameTitle {
         .Letter {
-            color: $dark-text-color;
+            color: common.$dark-text-color;
         }
     }
 
     .MenuSection {
-        color: $dark-text-color;
+        color: common.$dark-text-color;
     }
 
     .StartGame {
-        color: $dark-text-color;
+        color: common.$dark-text-color;
         &.hide {
-            color: $dark-background;
+            color: common.$dark-background;
         }
     }
 }
