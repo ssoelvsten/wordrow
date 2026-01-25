@@ -14,7 +14,7 @@
     "@types/node": "^25.0.10",
     "@types/react": "^19.2.9",
     "@types/react-dom": "^19.2.3",
-    "babel-loader": "^8.2.3",
+    "babel-loader": "^10.0.0",
     "babel-plugin-named-asset-import": "^0.3.8",
     "babel-preset-react-app": "^10.0.1",
     "bfj": "^7.0.2",
