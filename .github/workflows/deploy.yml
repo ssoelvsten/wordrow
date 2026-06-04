@@ -1,14 +1,24 @@
 name: deploy
 
+# Run workflow on pushes to `main` and when manually triggering it from the Actions tab
 on:
   push:
     branches: [ main ]
     paths: [ 'dict/**', 'game/**' ]
+  workflow_dispatch:
 
+# Ensure everything on `main` gets to run but cancel on other branches.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
+# Minimal permissions necessary for the three `actions/` for deployment.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Build and Deploy steps
 jobs:
   build:
     name: 'Build and Deploy'
@@ -16,19 +26,25 @@ jobs:
 
     steps:
     # Git repo set up
-    - name: Checkout commit
+    - name: Checkout Commit
       uses: actions/checkout@v2
       with:
         submodules: 'recursive'
 
     # Make
-    - name: Make build
+    - name: Make Build
       working-directory: ${{github.workspace}}
       run: make
 
     # Deploy on GitHub Pages
-    - name: Deploy to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@4.1.4
+    - name: Setup Pages
+      uses: actions/configure-pages@v5
+
+    - name: Upload Pages Artifact
+      uses: actions/upload-pages-artifact@v3
       with:
-        branch: gh-pages
-        folder: ${{github.workspace}}/build/
+        path: ./build/
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v5

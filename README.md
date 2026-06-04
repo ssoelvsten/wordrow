@@ -22,8 +22,7 @@ The project consists of the following three folders:
 - **game**
   The game itself. This is implemented as a static React application.
 
-These are precompiled into the final game which is served on the *gh-pages*
-branch.
+These are precompiled into the final game which is served on *GitHub pages*.
 
 ## Comparison
 
